@@ -15,7 +15,7 @@ import useAuth from "../../services/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5"; // Optional in RN
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation ,onLogin}) => {
   const dispatch = useDispatch();
   const { login } = useAuth();
 
@@ -42,8 +42,7 @@ const LoginScreen = ({ navigation }) => {
       if (data?.data?.token) {
         dispatch(loginUser(data.data));
         // Use react-navigation or any route jump
-        console.log(data?.data?.route?.sidebar?.[0]=="")
-        navigation.replace(data?.data?.route?.sidebar?.[0] != "" ? data?.data?.route?.sidebar?.[0] : "Dashboard");
+        onLogin()
       } else {
         console.error("Invalid credentials");
       }

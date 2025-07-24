@@ -1,12 +1,16 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React from "react";
+import { View, Text } from "react-native";
+import tw from "twrnc";
+import SidebarLayout from "../../layout/SidebarLayout";
 
-const Production = () => {
+const Production = ({ onLogout }) => {
   return (
-    <View>
-      <Text>Production</Text>
-    </View>
-  )
-}
+    <SidebarLayout title="Production" onLogout={onLogout}>
+      <View style={tw`flex-1 items-center justify-center`}>
+        <Text style={tw`text-2xl font-bold`}>Production Screen</Text>
+      </View>
+    </SidebarLayout>
+  );
+};
 
-export default Production
+export default Production;
