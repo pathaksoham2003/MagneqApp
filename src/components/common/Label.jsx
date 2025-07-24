@@ -1,0 +1,11 @@
+import React from "react";
+import { Text } from "react-native";
+import tw from "twrnc";
+
+const Label = ({ children, className = "" }) => (
+  <Text style={tw.style("mb-1 text-sm font-medium text-gray-700 dark:text-gray-300", className)}>
+    {children}
+  </Text>
+);
+
+export default Label;
