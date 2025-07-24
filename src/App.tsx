@@ -12,7 +12,7 @@ import RootNavigator from "./navigators/RootNavigator";
 import { create } from 'twrnc';
 import { useDeviceContext, useAppColorScheme } from 'twrnc';
 
-export const tw = create(require(`./tailwind.config.js`)); // <- your path may differ
+export const tw = create(require(`./tailwind.config.js`)); 
 
 function App() {
 

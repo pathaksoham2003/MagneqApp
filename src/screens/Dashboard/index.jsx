@@ -3,6 +3,7 @@ import { View, Text, Button, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDeviceContext, useAppColorScheme } from 'twrnc';
 import { tw } from '../../App';
+import { addColorText, themeBackground, themeText } from '../../utils/helper';
 const Dashbord = () => {
   const navigation = useNavigation();
 
@@ -20,9 +21,9 @@ const Dashbord = () => {
 
   return (
     <View
-      style={tw`flex-1 justify-center items-center bg-secondary`}
+      style={tw`flex-1 justify-center items-center bg-secondary ${themeBackground}`}
     >
-      <Text style={tw`text-2xl mb-5 text-white`}>Dashboard</Text>
+      <Text style={tw`text-2xl mb-5 text-white ${themeText}`}>Dashboard</Text>
       <View style={tw`w-40`}>
         <Button title="Open Drawer" onPress={() => navigation.openDrawer()} />
       </View>

@@ -2,19 +2,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#2B2B2B",
-        lightText: "#858584",
-        lightGrey: "#3B3B3B",
-        secondary: "#A259FF",
-        dimWhite: "rgba(255, 255, 255, 0.7)",
-        dimBlue: "rgba(9, 151, 124, 0.1)",
-        textGrey: "#CCCCCC",
+        // Background colors
+        lightbackground: 'rgba(249, 250, 251, 1)', // #F9FAFB
+        darkbackground: 'rgba(31, 41, 55, 1)',     // #1F2937
 
-        background: "#FFFFFF",
-        textColor: "#000000",
+        // Text colors
+        lightText: 'rgba(17, 24, 39, 1)',  // #111827
+        darkText: 'rgba(249, 250, 251, 1)', // #F9FAFB
+
+        // Border colors
+        lightBorder: 'rgba(229, 231, 235, 1)', // #E5E7EB
+        darkBorder: 'rgba(55, 65, 81, 1)',     // #374151
       },
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
+        poppins: ['Poppins', 'sans-serif'],
       },
     },
   },
