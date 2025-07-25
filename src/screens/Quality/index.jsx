@@ -1,29 +1,25 @@
 import { View, Text } from 'react-native';
 import React, { useState } from 'react';
 import SidebarLayout from '../../layout/SidebarLayout';
+import useQuality from '../../services/useQuality';
 import { useQuery } from '@tanstack/react-query';
-import usePurchase from '../../services/usePurchase';
 
-const Purchase = () => {
-  const { getAllPurchaseOrders } = usePurchase();
+const Quality = () => {
+  const { getAllQualityIssues } = useQuality();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
 
-  const {data, isLoading, isError, refetch} = useQuery({
-    queryKey: ["purchase"],
-    queryFn: () => getAllPurchaseOrders(),
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['pendingProductions', page, search],
+    queryFn: () => getAllQualityIssues(),
     staleTime: 5 * 60 * 1000,
   });
 
-
-  console.log("Data",data);
-
-
   return (
     <SidebarLayout>
-      <Text>Purchase</Text>
+      <Text>Quality</Text>
     </SidebarLayout>
   );
 };
 
-export default Purchase;
+export default Quality;

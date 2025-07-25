@@ -1,61 +1,50 @@
-import { useEffect } from 'react';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearItem, getItem } from '../utils/localStorage';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectAuth, logoutUser } from '../reducer/authSlice'; // adjust path
-
+import { API_URL } from '../api/apiUrls';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../reducer/authSlice';
+/**
+ * Custom hook to get the configured Axios instance.
+ * @returns {import('axios').AxiosInstance} The configured Axios instance.
+ */
 const useAxios = () => {
-  const navigation = useNavigation();
+  const navigate = useNavigation();
   const dispatch = useDispatch();
-  const { token } = useSelector(selectAuth);
-
   const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000/api/', // Change to your server's IP for physical devices
+    baseURL: API_URL,
   });
 
-  useEffect(() => {
-    const requestInterceptor = axiosInstance.interceptors.request.use(
-      async (config) => {
-        let authToken = token;
-
-        // If token not in Redux, try AsyncStorage
-        if (!authToken) {
-          authToken = await AsyncStorage.getItem('token');
-        }
-
-        if (authToken) {
-          config.headers.Authorization = `Bearer ${authToken}`;
-        }
-
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    const responseInterceptor = axiosInstance.interceptors.response.use(
-      (response) => response.data,
-      async (error) => {
-        if (error.response && error.response.status === 403) {
-          await AsyncStorage.removeItem('token');
-          dispatch(logoutUser());
-
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-        }
-
-        return Promise.reject(error);
+  axiosInstance.interceptors.request.use(
+    async config => {
+      const token = await getItem('token'); //TODO: update the token with exact token name
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-    );
+      return config;
+    },
+    error => {
+      return Promise.reject(error);
+    },
+  );
 
-    return () => {
-      axiosInstance.interceptors.request.eject(requestInterceptor);
-      axiosInstance.interceptors.response.eject(responseInterceptor);
-    };
-  }, [token, navigation, dispatch]);
-
+  axiosInstance.interceptors.response.use(
+    response => {
+      return response.data;
+    },
+    async error => {
+      if (error.response && error.response.status === 403) {
+        await clearItem(); //TODO: update the token with exact token name
+        await dispatch(logoutUser())
+        // We are refreshing the page and redirecting to login.
+        await navigate.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
+      }
+      return Promise.reject(error);
+    },
+  );
   return axiosInstance;
 };
 

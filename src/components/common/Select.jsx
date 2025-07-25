@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import tw from "twrnc";
+import { tw } from "../../App";
 
 const Select = ({ selectedValue, onValueChange, items = [], className = "", ...props }) => (
   <View style={tw.style("w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-800", className)}>

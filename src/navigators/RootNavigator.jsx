@@ -4,6 +4,13 @@ import Login from "../screens/Login";
 import Dashboard from "../screens/Dashboard";
 import Production from "../screens/Production";
 import Sales from "../screens/Sales";
+import Purchase from "../screens/Purchase";
+import CreatePurchase from "../screens/Purchase/CreatePurchase";
+import CreateSales from "../screens/Sales/CreateSales";
+import ViewProduction from "../screens/Production/ViewProduction";
+import Quality from "../screens/Quality";
+import CreateQuality from "../screens/Quality/CreateQuality";
+import ViewSales from "../screens/Sales/ViewSales";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,7 +33,14 @@ const RootNavigator = () => {
             )}
           </Stack.Screen>
           <Stack.Screen name="Production" component={Production} />
+          <Stack.Screen name="ViewProduction" component={ViewProduction} />
           <Stack.Screen name="Sales" component={Sales} />
+          <Stack.Screen name="ViewSales" component={ViewSales} />
+          <Stack.Screen name="CreateSales" component={CreateSales} />
+          <Stack.Screen name="Purchase" component={Purchase} />
+          <Stack.Screen name="CreatePurchase" component={CreatePurchase} />
+          <Stack.Screen name="Quality" component={Quality} />
+          <Stack.Screen name="CreateQuality" component={CreateQuality} />
         </>
       )}
     </Stack.Navigator>

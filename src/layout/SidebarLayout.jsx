@@ -8,7 +8,10 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import tw from 'twrnc';
+import { tw } from '../App';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../reducer/authSlice';
+import { clearItem } from '../utils/localStorage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -16,6 +19,8 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
   const navigation = useNavigation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnim = useState(new Animated.Value(-SCREEN_WIDTH * 0.75))[0];
+  const dispatch = useDispatch();
+  const navigate = useNavigation();
 
   const openDrawer = () => {
     Animated.timing(drawerAnim, {
@@ -35,9 +40,19 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
 
   const navigateTo = screen => {
     closeDrawer();
-     setTimeout(() => {
-    navigation.replace(screen);
-  }, 250); // Delay to allow drawer close animation // <-- use replace here instead of navigate
+    setTimeout(() => {
+      navigation.replace(screen);
+    }, 250); // Delay to allow drawer close animation // <-- use replace here instead of navigate
+  };
+
+  const handleLogout = async () => {
+    dispatch(logoutUser());
+    clearItem();
+    navigate.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+    onLogout()
   };
 
   return (
@@ -101,8 +116,20 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
           >
             <Text style={tw`text-gray-800 text-lg`}>Sales</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={tw`mb-3`}
+            onPress={() => navigateTo('Purchase')}
+          >
+            <Text style={tw`text-gray-800 text-lg`}>Purchase</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={tw`mb-3`}
+            onPress={() => navigateTo('Quality')}
+          >
+            <Text style={tw`text-gray-800 text-lg`}>Quality</Text>
+          </TouchableOpacity>
 
-          <TouchableOpacity onPress={onLogout}>
+          <TouchableOpacity onPress={handleLogout}>
             <Text style={tw`text-red-500 text-lg`}>Logout</Text>
           </TouchableOpacity>
         </View>

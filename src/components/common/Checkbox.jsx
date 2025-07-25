@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import tw from "twrnc";
+import { tw } from "../../App";
 
 const Checkbox = ({ checked, onChange, className = "", ...props }) => {
   return (

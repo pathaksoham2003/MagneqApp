@@ -1,13 +1,17 @@
-import React from "react";
-import { View, Text } from "react-native";
-import tw from "twrnc";
-import SidebarLayout from "../../layout/SidebarLayout";
+import React from 'react';
+import { View, Text } from 'react-native';
+import { tw } from '../../App';
+import SidebarLayout from '../../layout/SidebarLayout';
+import DashboardMetrics from '../../components/metrics/DashboardMetrics';
+import Heading from '../../components/common/Heading';
 
 const Dashboard = ({ onLogout }) => {
   return (
     <SidebarLayout title="Dashboard" onLogout={onLogout}>
-      <View style={tw`flex-1 items-center justify-center`}>
-        <Text style={tw`text-2xl font-bold`}>Welcome to Dashboard</Text>
+      <View style={tw`flex-1`}>
+        <Heading>Dashboard</Heading>
+        <DashboardMetrics />
+        <Heading>Recent Orders</Heading>
       </View>
     </SidebarLayout>
   );

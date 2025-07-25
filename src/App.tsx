@@ -18,7 +18,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <SafeAreaProvider>  {/* <-- Wrap here */}
+          <SafeAreaProvider style={{ flex: 1 }}>  {/* <-- Wrap here */}
             <NavigationContainer>
               <RootNavigator />
             </NavigationContainer>
