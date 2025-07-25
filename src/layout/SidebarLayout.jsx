@@ -6,7 +6,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   Image,
-  Animated
+  Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -14,15 +14,16 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { tw } from '../App';
 import { logoutUser } from '../reducer/authSlice';
 import { clearItem } from '../utils/localStorage';
-import MagneqIcon from "../assets/images/Logo_Icon.png";
+import MagneqIcon from '../assets/images/Logo_Icon.png';
 import { themeBackground, themeColorText } from '../utils/helper';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const menuItems = [
   { label: 'Dashboard', icon: 'grid-outline' },
-  { label: 'Production', icon: 'cube-outline' },
   { label: 'Sales', icon: 'file-tray-full-outline' },
+  { label: 'Production', icon: 'cube-outline' },
+  { label: 'Stores', icon: 'storefront-outline' },
   { label: 'Purchase', icon: 'document-outline' },
   { label: 'Quality', icon: 'analytics-outline' },
 ];
@@ -51,15 +52,15 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   };
 
   const navigateTo = screen => {
-  setActive(screen);
-  closeDrawer();
-  setTimeout(() => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: screen }],
-    });
-  }, 250);
-};
+    setActive(screen);
+    closeDrawer();
+    setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: screen }],
+      });
+    }, 250);
+  };
 
   const handleLogout = async () => {
     dispatch(logoutUser());
@@ -81,17 +82,18 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
           <Text style={tw`text-white text-3xl  ${themeColorText}`}>☰</Text>
         </TouchableOpacity>
         <View style={tw`flex flex-row`}>
-          <Image source={MagneqIcon}/>
-          <Text style={tw`text-white text-3xl ml-3  ${themeColorText}`}>{title}</Text>
+          <Image source={MagneqIcon} />
+          <Text style={tw`text-white text-3xl ml-3  ${themeColorText}`}>
+            {title}
+          </Text>
         </View>
         <View style={tw`flex-row`}>
-        <TouchableOpacity onPress={openDrawer}>
-          <Text style={tw`text-white text-3xl  ${themeColorText}`}>...</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={openDrawer}>
-          <Text style={tw`text-white text-3xl  ${themeColorText}`}> ...</Text>
-        </TouchableOpacity>
-
+          <TouchableOpacity onPress={openDrawer}>
+            <Text style={tw`text-white text-3xl  ${themeColorText}`}>...</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openDrawer}>
+            <Text style={tw`text-white text-3xl  ${themeColorText}`}> ...</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -121,7 +123,7 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
       >
         {/* Logo */}
         <View style={tw`flex-row items-center mb-8`}>
-          <Image source={MagneqIcon}/>
+          <Image source={MagneqIcon} />
           <Text style={tw`text-2xl font-bold ml-3`}>Magneq</Text>
         </View>
 
