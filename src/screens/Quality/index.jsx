@@ -18,7 +18,7 @@ const Quality = ({ onLogout }) => {
   };
 
   return (
-    <SidebarLayout title="Quality Concerns" onLogout={onLogout}>
+    <SidebarLayout onLogout={onLogout}>
       <SafeAreaView style={tw`px-4 py-2`}>
         {/* Top bar */}
         <View style={tw`flex-row justify-between items-center mb-4`}>

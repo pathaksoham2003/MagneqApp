@@ -127,7 +127,7 @@ const LoginScreen = ({ navigation, onLogin }) => {
           <Button
             fullWidth
             title={mutation.isLoading ? 'Signing In...' : 'Sign In'}
-            onPress={handleSubmit}
+            onPress={handleLogin}
             disabled={mutation.isLoading}
             style={tw`mt-5`}
           >
