@@ -57,6 +57,7 @@ const Production = ({ onLogout }) => {
 
         {/* Table */}
         <Text style={tw`text-lg font-bold mb-2`}>Production Table</Text>
+<<<<<<< HEAD
         <DynamicTable
           header={header}
           tableData={tableData}
@@ -64,6 +65,9 @@ const Production = ({ onLogout }) => {
             navigate.navigate('ViewProduction', { id: item_id });
           }}
         />
+=======
+        <DynamicTable header={header} tableData={data} />
+>>>>>>> 22a33b55d9b1b535654fc7b660c6ceee04033216
       </View>
     </SidebarLayout>
   );
