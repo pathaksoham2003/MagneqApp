@@ -12,15 +12,18 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/Ionicons";
-import * as Animatable from "react-native-animatable";
+import { useSelector, useDispatch } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
+import useAuth from "../../services/useAuth";
+import { loginUser, selectAuth } from "../../reducer/authSlice";
 
-const LoginScreen = ({ navigation ,onLogin}) => {
+const LoginScreen = ({ navigation, onLogin }) => {
   const dispatch = useDispatch();
   const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    user_name: "",
     password: "",
     role: "",
     active: false,
@@ -35,21 +38,20 @@ const LoginScreen = ({ navigation ,onLogin}) => {
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
+      console.log("Login Success:", data);
       if (data?.data?.token) {
         dispatch(loginUser(data.data));
-        // Use react-navigation or any route jump
-        onLogin()
+        onLogin(); // Navigate to home or dashboard
       } else {
         console.error("Invalid credentials");
       }
     },
     onError: (err) => {
       console.error("Login failed:", err?.response?.data || err.message);
-      console.log(err)
     },
   });
 
-  const handleSubmit = () => {
+  const handleLogin = () => {
     mutation.mutate(formData);
   };
 
@@ -61,26 +63,19 @@ const LoginScreen = ({ navigation ,onLogin}) => {
         resizeMode="cover"
       />
 
-      <Animatable.View
-        animation="fadeIn"
-        duration={800}
+      <View
         style={[
           tw`flex-1 justify-center items-center px-6`,
           { backgroundColor: "rgba(255,255,255,0.0)" },
         ]}
       >
-        <Animatable.View
-          animation="fadeInUp"
-          delay={300}
-          duration={1000}
+        <View
           style={[
             tw`w-full p-6 rounded-2xl`,
             { backgroundColor: "rgba(255,255,255,0.1)" },
           ]}
         >
-          <Animatable.Image
-            animation="fadeInDown"
-            delay={400}
+          <Image
             source={require("../../assets/images/black_logo.png")}
             style={tw`w-45 h-45 mx-auto mb-4`}
             resizeMode="contain"
@@ -91,8 +86,8 @@ const LoginScreen = ({ navigation ,onLogin}) => {
 
           <Text style={tw`text-white mb-1`}>Username</Text>
           <TextInput
-            value={formData.username}
-            onChangeText={(text) => handleChange("username", text)}
+            value={formData.user_name}
+            onChangeText={(text) => handleChange("user_name", text)}
             placeholder="Enter your username"
             placeholderTextColor="#444"
             style={tw`border border-gray-300 rounded-md px-3 h-10 text-black bg-white/80`}
@@ -104,7 +99,7 @@ const LoginScreen = ({ navigation ,onLogin}) => {
             onChangeText={(text) => handleChange("password", text)}
             placeholder="Enter your password"
             placeholderTextColor="#444"
-            secureTextEntry
+            secureTextEntry={!showPassword}
             style={tw`border border-gray-300 rounded-md px-3 h-10 text-black bg-white/80`}
           />
 
@@ -137,8 +132,8 @@ const LoginScreen = ({ navigation ,onLogin}) => {
           >
             <Text style={tw`text-white font-semibold`}>Login</Text>
           </TouchableOpacity>
-        </Animatable.View>
-      </Animatable.View>
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -164,7 +159,10 @@ const CustomDropdown = ({ value, onValueChange, options, placeholder }) => {
           activeOpacity={1}
           style={tw`flex-1 justify-center items-center bg-black/50`}
         >
-          <TouchableOpacity activeOpacity={1} style={tw`bg-white rounded-md p-3 w-64`}>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={tw`bg-white rounded-md p-3 w-64`}
+          >
             <FlatList
               data={options}
               keyExtractor={(item) => item.value}

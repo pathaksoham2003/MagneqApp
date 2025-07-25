@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
+import SidebarLayout from "../../layout/SidebarLayout"; // adjust path if needed
 import tw from "twrnc";
-import SidebarLayout from "../../layout/SidebarLayout";
 
 const Dashboard = ({ onLogout }) => {
   return (

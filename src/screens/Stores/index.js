@@ -3,14 +3,14 @@ import { View, Text } from "react-native";
 import tw from "twrnc";
 import SidebarLayout from "../../layout/SidebarLayout";
 
-const Purchase = ({ onLogout }) => {
+const Stores = ({ onLogout }) => {
   return (
-    <SidebarLayout title="Purchase" onLogout={onLogout}>
+    <SidebarLayout title="Stores" onLogout={onLogout}>
       <View style={tw`flex-1 items-center justify-center`}>
-        <Text style={tw`text-2xl font-bold`}>Purchase Screen</Text>
+        <Text style={tw`text-2xl font-bold`}>Stores Screen</Text>
       </View>
     </SidebarLayout>
   );
 };
 
-export default Purchase;
+export default Stores;
