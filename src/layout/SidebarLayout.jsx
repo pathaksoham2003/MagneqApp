@@ -6,6 +6,7 @@ import {
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -13,6 +14,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { tw } from '../App';
 import { logoutUser } from '../reducer/authSlice';
 import { clearItem } from '../utils/localStorage';
+import MagneqIcon from "../assets/images/Logo_Icon.png";
+import { themeBackground, themeColorText } from '../utils/helper';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -24,7 +27,7 @@ const menuItems = [
   { label: 'Quality', icon: 'analytics-outline' },
 ];
 
-const SidebarLayout = ({ children, title = 'App', onLogout }) => {
+const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const drawerAnim = useState(new Animated.Value(-SCREEN_WIDTH * 0.75))[0];
@@ -47,13 +50,16 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
     }).start(() => setDrawerOpen(false));
   };
 
-  const navigateTo = (screen) => {
-    setActive(screen);
-    closeDrawer();
-    setTimeout(() => {
-      navigation.replace(screen);
-    }, 250);
-  };
+  const navigateTo = screen => {
+  setActive(screen);
+  closeDrawer();
+  setTimeout(() => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: screen }],
+    });
+  }, 250);
+};
 
   const handleLogout = async () => {
     dispatch(logoutUser());
@@ -66,13 +72,27 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
   };
 
   return (
-    <View style={tw`flex-1 bg-white`}>
+    <View style={tw`flex-1 ${themeColorText}`}>
       {/* Header */}
-      <View style={tw`flex-row items-center p-4 bg-blue-600`}>
+      <View
+        style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}
+      >
         <TouchableOpacity onPress={openDrawer}>
-          <Text style={tw`text-white text-3xl`}>☰</Text>
+          <Text style={tw`text-white text-3xl  ${themeColorText}`}>☰</Text>
         </TouchableOpacity>
-        <Text style={tw`text-white text-xl ml-4`}>{title}</Text>
+        <View style={tw`flex flex-row`}>
+          <Image source={MagneqIcon}/>
+          <Text style={tw`text-white text-3xl ml-3  ${themeColorText}`}>{title}</Text>
+        </View>
+        <View style={tw`flex-row`}>
+        <TouchableOpacity onPress={openDrawer}>
+          <Text style={tw`text-white text-3xl  ${themeColorText}`}>...</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={openDrawer}>
+          <Text style={tw`text-white text-3xl  ${themeColorText}`}> ...</Text>
+        </TouchableOpacity>
+
+        </View>
       </View>
 
       {/* Main content */}
@@ -81,7 +101,9 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
       {/* Backdrop */}
       {drawerOpen && (
         <TouchableWithoutFeedback onPress={closeDrawer}>
-          <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-20`} />
+          <View
+            style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-20`}
+          />
         </TouchableWithoutFeedback>
       )}
 
@@ -99,7 +121,7 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
       >
         {/* Logo */}
         <View style={tw`flex-row items-center mb-8`}>
-          <View style={tw`w-10 h-10 bg-blue-500 rounded-xl`} />
+          <Image source={MagneqIcon}/>
           <Text style={tw`text-2xl font-bold ml-3`}>Magneq</Text>
         </View>
 
@@ -107,7 +129,7 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
         <Text style={tw`text-gray-400 mb-3`}>MENU</Text>
 
         {/* Menu Items */}
-        {menuItems.map((item) => (
+        {menuItems.map(item => (
           <TouchableOpacity
             key={item.label}
             onPress={() => navigateTo(item.label)}
@@ -142,7 +164,12 @@ const SidebarLayout = ({ children, title = 'App', onLogout }) => {
           onPress={handleLogout}
           style={tw`border border-gray-300 p-3 rounded-xl flex-row items-center justify-center`}
         >
-          <Ionicons name="log-out-outline" size={20} color="#374151" style={tw`mr-2`} />
+          <Ionicons
+            name="log-out-outline"
+            size={20}
+            color="#374151"
+            style={tw`mr-2`}
+          />
           <Text style={tw`text-lg font-medium`}>Logout</Text>
         </TouchableOpacity>
       </Animated.View>

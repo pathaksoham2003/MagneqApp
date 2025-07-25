@@ -7,7 +7,7 @@ import Heading from '../../components/common/Heading';
 
 const Dashboard = ({ onLogout }) => {
   return (
-    <SidebarLayout title="Dashboard" onLogout={onLogout}>
+    <SidebarLayout onLogout={onLogout}>
       <View style={tw`flex-1`}>
         <Heading>Dashboard</Heading>
         <DashboardMetrics />
