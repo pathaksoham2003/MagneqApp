@@ -11,6 +11,9 @@ import ViewProduction from "../screens/Production/ViewProduction";
 import Quality from "../screens/Quality";
 import CreateQuality from "../screens/Quality/CreateQuality";
 import ViewSales from "../screens/Sales/ViewSales";
+import Stores from "../screens/Stores";
+import CreateTicket from "../screens/Quality/CreateTicket";
+import TicketDetails from "../screens/Quality/TicketDetails";
 
 const Stack = createNativeStackNavigator();
 
@@ -37,11 +40,17 @@ const RootNavigator = () => {
           <Stack.Screen name="Sales" component={Sales} />
           <Stack.Screen name="ViewSales" component={ViewSales} />
           <Stack.Screen name="CreateSales" component={CreateSales} />
-          <Stack.Screen name="Purchase" component={Purchase} />
           <Stack.Screen name="CreatePurchase" component={CreatePurchase} />
           <Stack.Screen name="Quality" component={Quality} />
           <Stack.Screen name="CreateQuality" component={CreateQuality} />
+          <Stack.Screen name="Stores" component={Stores} />
+          <Stack.Screen name="Purchase" component={Purchase} />
+          <Stack.Screen name="CreateTicket" component={CreateTicket} />
+          <Stack.Screen name="TicketDetails" component={TicketDetails} />
+
+
         </>
+
       )}
     </Stack.Navigator>
   );

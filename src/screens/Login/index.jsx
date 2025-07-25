@@ -59,7 +59,7 @@ const LoginScreen = ({ navigation, onLogin }) => {
     },
   });
 
-  const handleSubmit = () => {
+  const handleLogin = () => {
     mutation.mutate(formData);
   };
 

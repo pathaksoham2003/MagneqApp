@@ -3,10 +3,10 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Animated,
   Dimensions,
   TouchableWithoutFeedback,
   Image,
+  Animated
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -100,9 +100,9 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
 
       {/* Backdrop */}
       {drawerOpen && (
-        <TouchableWithoutFeedback onPress={closeDrawer}>
+        <TouchableWithoutFeedback onPress={() => setDrawerOpen(false)}>
           <View
-            style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-20`}
+            style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`}
           />
         </TouchableWithoutFeedback>
       )}
