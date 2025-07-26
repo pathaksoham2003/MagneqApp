@@ -1,16 +1,23 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
-import tw from 'twrnc';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import useTheme from '../../hooks/useTheme';
 
 const SuccessModel = ({ visible, onClose, message }) => {
+  const { tw } = useTheme();
   return (
     <Modal transparent visible={visible} animationType="fade">
-      <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-40`}>
-        <View style={tw`bg-white rounded-2xl p-6 w-80 items-center relative border border-green-400`}>
-          
+      <View
+        style={tw`flex-1 justify-center items-center bg-black bg-opacity-40`}
+      >
+        <View
+          style={tw`bg-white rounded-2xl p-6 w-80 items-center relative border border-green-400`}
+        >
           {/* Close Button */}
-          <TouchableOpacity onPress={onClose} style={tw`absolute top-3 right-3`}>
+          <TouchableOpacity
+            onPress={onClose}
+            style={tw`absolute top-3 right-3`}
+          >
             <Ionicons name="close" size={20} color="gray" />
           </TouchableOpacity>
 

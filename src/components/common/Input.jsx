@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput } from "react-native";
-import { tw } from "../../App";
+import useTheme from "../../hooks/useTheme";
 
 const Input = ({
   id,
@@ -10,6 +10,7 @@ const Input = ({
   className = "",
   ...props
 }) => {
+  const {tw} = useTheme();
   return (
     <TextInput
       placeholder={placeholder}

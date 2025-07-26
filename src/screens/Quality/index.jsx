@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, SafeAreaView, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import tw from 'twrnc';
+
 import SidebarLayout from '../../layout/SidebarLayout';
 import Button from '../../components/common/Button';
 import DynamicTable from '../../components/common/DynamicTable';
 import { useNavigation } from '@react-navigation/native';
+import useTheme from '../../hooks/useTheme';
 
 const Quality = ({ onLogout }) => {
+  const { tw } = useTheme();
   const tableHeader = ['Ticket ID', 'Vendor name'];
   const navigation = useNavigation();
   const tableData = {

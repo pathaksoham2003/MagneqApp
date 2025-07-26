@@ -1,7 +1,7 @@
 // screens/Sales.js
 import React, { useState } from 'react';
 import { View, ScrollView, ActivityIndicator, Text } from 'react-native';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import SidebarLayout from '../../layout/SidebarLayout';
 import SalesCard from '../../components/card/SalesCard';
 import Heading from '../../components/common/Heading';
@@ -11,6 +11,8 @@ import { useQuery } from '@tanstack/react-query';
 import useSales from '../../services/useSales';
 
 const Sales = ({ onLogout }) => {
+    const { tw } = useTheme();
+  
   const navigation = useNavigation();
   const { getAllSales } = useSales();
   const [page, setPage] = useState(1);

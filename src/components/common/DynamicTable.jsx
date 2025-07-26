@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 
 const DynamicTable = ({
   header = [],
@@ -8,6 +8,7 @@ const DynamicTable = ({
   formatCell: customFormatCell,
   onRowClick: customRowClick,
 }) => {
+  const { tw } = useTheme();
   const { item = [] } = tableData;
 
   const defaultFormatCell = (cell) => {

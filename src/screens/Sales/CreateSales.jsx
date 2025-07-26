@@ -9,12 +9,14 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useSales from '../../services/useSales';
 import OrderItemsForm from './OrderItemForm';
 
 const CreateSales = ({ navigation }) => {
+    const { tw } = useTheme();
+  
   const { createSale } = useSales(); // custom hook for API call
   const queryClient = useQueryClient();
 

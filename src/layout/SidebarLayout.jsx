@@ -11,11 +11,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { tw } from '../App';
+
 import { logoutUser } from '../reducer/authSlice';
 import { clearItem } from '../utils/localStorage';
 import MagneqIcon from '../assets/images/Logo_Icon.png';
 import { themeBackground, themeColorText } from '../utils/helper';
+import { useAppColorScheme } from 'twrnc';
+import useTheme from '../hooks/useTheme';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -31,9 +33,25 @@ const menuItems = [
 const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { tw } = useTheme();
   const drawerAnim = useState(new Animated.Value(-SCREEN_WIDTH * 0.75))[0];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [active, setActive] = useState('Dashboard');
+
+  const [colorScheme, toggleColorScheme, setColorScheme] =
+    useAppColorScheme(tw);
+
+  const [current, setCurrent] = useState('light');
+
+  const toggleColor = () => {
+    if (current == 'light') {
+      setColorScheme('dark');
+      setCurrent('dark');
+    } else {
+      setColorScheme('light');
+      setCurrent('light')
+    }
+  };
 
   const openDrawer = () => {
     Animated.timing(drawerAnim, {
@@ -91,7 +109,7 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
           <TouchableOpacity onPress={openDrawer}>
             <Text style={tw`text-white text-3xl  ${themeColorText}`}>...</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={openDrawer}>
+          <TouchableOpacity onPress={toggleColor}>
             <Text style={tw`text-white text-3xl  ${themeColorText}`}> ...</Text>
           </TouchableOpacity>
         </View>

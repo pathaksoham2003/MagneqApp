@@ -1,13 +1,14 @@
 // components/card/SalesCard.js
 import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { tw } from '../../App';
 import { themeBackground, themeBorder } from '../../utils/helper';
 import Pill from '../common/Pill';
 import LabelValue from '../text/LabelValue';
 import moment from 'moment';
+import useTheme from '../../hooks/useTheme';
 
 const SalesCard = ({ headers, values, status, onPress }) => {
+  const { tw } = useTheme();
   const formatValue = (val, index) => {
     if (Array.isArray(val)) return val.join(', ');
     if (headers[index] === 'Date of Creation') return moment(val).format('DD MMM YYYY');

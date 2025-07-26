@@ -8,10 +8,12 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Button from '../../components/common/Button';
 import Icon from 'react-native-vector-icons/Ionicons';
-import tw from 'twrnc';
+
 import { useNavigation } from '@react-navigation/native';
+import useTheme from '../../hooks/useTheme';
 
 const TicketDetails = () => {
+  const { tw } = useTheme();
   const navigation =useNavigation();
   return (
     <ScrollView contentContainerStyle={tw`p-5 bg-white mt-10`}>

@@ -4,7 +4,7 @@ import {
   themePrimary,
   themeText,
 } from '../../utils/helper';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 const Button = ({
   children,
   fullWidth = false,
@@ -17,6 +17,7 @@ const Button = ({
   style = {},
   ...props
 }) => {
+  const { tw } = useTheme();
   const isDisabled = disabled || loading;
 
   const baseStyle = `flex-row items-center justify-center px-2 py-1 rounded-md`;

@@ -1,13 +1,14 @@
 // components/card/SalesDetailCard.js
 import { View } from 'react-native';
 import React from 'react';
-import { tw } from '../../App';
 import { themeBackground, themeBorder } from '../../utils/helper';
 import Pill from '../common/Pill';
 import LabelValue from '../text/LabelValue';
 import moment from 'moment';
+import useTheme from '../../hooks/useTheme';
 
 const SalesDetailCard = ({ data, status }) => {
+  const { tw } = useTheme();
   const entries = Object.entries(data);
   const firstKey = entries[0]?.[0];
   const firstValue = entries[0]?.[1];

@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 
 const Pill = ({ children, color = 'green' }) => {
+  const { tw } = useTheme();
   const bgColorMap = {
     green: '#22c55e33',   // Green with ~20% opacity
     red: '#ef444433',     // Red with ~20% opacity

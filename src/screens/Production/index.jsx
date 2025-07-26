@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
-import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useNavigation } from '@react-navigation/native';
@@ -9,8 +8,10 @@ import useProduction from '../../services/useProduction';
 import Button from '../../components/common/Button';
 import SidebarLayout from '../../layout/SidebarLayout';
 import DynamicTable from '../../components/common/DynamicTable';
+import useTheme from '../../hooks/useTheme';
 
 const Production = ({ onLogout }) => {
+  const {tw} = useTheme();
   const header = ['Order ID', 'Date of Creation', 'Customer'];
 
   const [page, setPage] = useState(1);

@@ -1,29 +1,37 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
-tw
 import moment from 'moment';
 import { useQueryClient } from '@tanstack/react-query';
-import { tw } from '../../App';
 import useProduction from '../../services/useProduction';
 import useNotification from '../../services/useNotification';
 import Button from '../common/Button';
 import LabelValue from '../text/LabelValue';
 import { themeBackground, themeBorder } from '../../utils/helper';
 import Pill from '../common/Pill';
+import useTheme from '../../hooks/useTheme';
 
-const ProductionCard = ({ headers, values, status, productionId, classDataMap, refetch }) => {
+const ProductionCard = ({
+  headers,
+  values,
+  status,
+  productionId,
+  classDataMap,
+  refetch,
+}) => {
   const { startProductionById, markAsReady } = useProduction();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
-  const {createNotification} = useNotification();
+  const { createNotification } = useNotification();
+  const { tw } = useTheme();
 
-  const allInStock = Object.values(classDataMap).every((cls) =>
-    (cls || []).every((item) => item.in_stock)
+  const allInStock = Object.values(classDataMap).every(cls =>
+    (cls || []).every(item => item.in_stock),
   );
 
   const formatValue = (val, index) => {
     if (Array.isArray(val)) return val.join(', ');
-    if (headers[index] === 'Created At') return moment(val).format('DD MMM YYYY');
+    if (headers[index] === 'Created At')
+      return moment(val).format('DD MMM YYYY');
     return val;
   };
 
@@ -32,7 +40,9 @@ const ProductionCard = ({ headers, values, status, productionId, classDataMap, r
     try {
       await startProductionById(productionId);
       await refetch();
-      queryClient.invalidateQueries({ queryKey: ['productionId', productionId] });
+      queryClient.invalidateQueries({
+        queryKey: ['productionId', productionId],
+      });
       queryClient.invalidateQueries({ queryKey: ['sales'] });
     } finally {
       setLoading(false);
@@ -47,7 +57,9 @@ const ProductionCard = ({ headers, values, status, productionId, classDataMap, r
       await markAsReady(productionId);
       await createNotification({ type: 'sales', payload: { message } });
       await refetch();
-      queryClient.invalidateQueries({ queryKey: ['productionId', productionId] });
+      queryClient.invalidateQueries({
+        queryKey: ['productionId', productionId],
+      });
       queryClient.invalidateQueries({ queryKey: ['sales'] });
     } finally {
       setLoading(false);
@@ -95,9 +107,7 @@ const ProductionCard = ({ headers, values, status, productionId, classDataMap, r
         </View>
 
         {/* Conditional Action Button */}
-        <View style={tw`mt-4`}>
-          {renderActionButton()}
-        </View>
+        <View style={tw`mt-4`}>{renderActionButton()}</View>
       </View>
     </TouchableOpacity>
   );

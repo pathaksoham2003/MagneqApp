@@ -6,10 +6,11 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Card from '../card/Card'; // Your Card with twrnc
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import useDashboard from '../../services/useDashboard';
 
 const DashboardMetrics = () => {
+  const { tw } = useTheme();
   const [metrics, setMetrics] = useState({
     Sales: null,
     purchase: null,

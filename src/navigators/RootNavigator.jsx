@@ -1,19 +1,20 @@
-import React, { useState } from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Login from "../screens/Login";
-import Dashboard from "../screens/Dashboard";
-import Production from "../screens/Production";
-import Sales from "../screens/Sales";
-import Purchase from "../screens/Purchase";
-import CreatePurchase from "../screens/Purchase/CreatePurchase";
-import CreateSales from "../screens/Sales/CreateSales";
-import ViewProduction from "../screens/Production/ViewProduction";
-import Quality from "../screens/Quality";
-import CreateQuality from "../screens/Quality/CreateQuality";
-import ViewSales from "../screens/Sales/ViewSales";
-import Stores from "../screens/Stores";
-import CreateTicket from "../screens/Quality/CreateTicket";
-import TicketDetails from "../screens/Quality/TicketDetails";
+import React, { useState } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Login from '../screens/Login';
+import Dashboard from '../screens/Dashboard';
+import Production from '../screens/Production';
+import Sales from '../screens/Sales';
+import Purchase from '../screens/Purchase';
+import CreatePurchase from '../screens/Purchase/CreatePurchase';
+import CreateSales from '../screens/Sales/CreateSales';
+import ViewProduction from '../screens/Production/ViewProduction';
+import Quality from '../screens/Quality';
+import CreateQuality from '../screens/Quality/CreateQuality';
+import ViewSales from '../screens/Sales/ViewSales';
+import Stores from '../screens/Stores';
+import CreateTicket from '../screens/Quality/CreateTicket';
+import TicketDetails from '../screens/Quality/TicketDetails';
+import RawMaterialDetail from '../screens/Stores/RawMaterialDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,14 +25,12 @@ const RootNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!isLoggedIn ? (
         <Stack.Screen name="Login">
-          {(props) => (
-            <Login {...props} onLogin={() => setIsLoggedIn(true)} />
-          )}
+          {props => <Login {...props} onLogin={() => setIsLoggedIn(true)} />}
         </Stack.Screen>
       ) : (
         <>
           <Stack.Screen name="Dashboard">
-            {(props) => (
+            {props => (
               <Dashboard {...props} onLogout={() => setIsLoggedIn(false)} />
             )}
           </Stack.Screen>
@@ -48,9 +47,11 @@ const RootNavigator = () => {
           <Stack.Screen name="CreateTicket" component={CreateTicket} />
           <Stack.Screen name="TicketDetails" component={TicketDetails} />
 
-
+          <Stack.Screen
+            name="RawMaterialDetail"
+            component={RawMaterialDetail}
+          />
         </>
-
       )}
     </Stack.Navigator>
   );

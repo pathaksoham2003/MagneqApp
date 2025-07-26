@@ -8,12 +8,13 @@ import {
   Alert,
   FlatList,
 } from 'react-native';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import useFinishedGoods from '../../services/useFinishedGoods';
 import { useQuery } from '@tanstack/react-query';
 
 const Dropdown = ({ label, data, value, setValue }) => {
   const [open, setOpen] = useState(false);
+  const { tw } = useTheme();
 
   return (
     <View style={tw`mb-3`}>

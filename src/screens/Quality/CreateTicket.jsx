@@ -10,12 +10,13 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
-import tw from 'twrnc';
 import Button from '../../components/common/Button';
 import SuccessModel from '../../components/common/SuccessModel';  // your reusable modal
 import Icon from 'react-native-vector-icons/Ionicons';
+import useTheme from '../../hooks/useTheme';
 
 const CreateTicket = () => {
+  const { tw } = useTheme();
   const [model, setModel] = useState('');
   const [type, setType] = useState('');
   const [issue, setIssue] = useState('');

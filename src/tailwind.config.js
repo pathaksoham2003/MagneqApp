@@ -7,8 +7,8 @@ module.exports = {
         darkbackground: 'rgba(31, 41, 55, 1)',     // #1F2937
 
         // Text colors
-        lightText: 'rgba(17, 24, 39, 1)',  // #111827
-        darkText: 'rgba(249, 250, 251, 1)', // #F9FAFB
+        lightText: 'black',  // #111827
+        darkText: 'white', // #F9FAFB
 
         // Border colors
         lightBorder: 'rgba(229, 231, 235, 1)', // #E5E7EB
@@ -23,4 +23,5 @@ module.exports = {
       },
     },
   },
+  darkMode: 'class',
 };

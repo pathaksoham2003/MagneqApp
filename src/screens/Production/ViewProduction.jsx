@@ -3,13 +3,15 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import SidebarLayout from '../../layout/SidebarLayout';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import SalesCard from '../../components/card/SalesCard';
 import DynamicTable from '../../components/common/DynamicTable';
 import useProduction from '../../services/useProduction';
 import ProductionCard from '../../components/card/ProductionCard';
 
 const ViewProduction = () => {
+    const { tw } = useTheme();
+  
   const route = useRoute();
   const { id: productionId } = route.params;
   const { getProductionById } = useProduction();

@@ -1,11 +1,12 @@
 // components/card/LabelValueGrid.js
 import React from 'react';
 import { View } from 'react-native';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import { themeBackground, themeBorder } from '../../utils/helper';
 import LabelValue from '../text/LabelValue';
 
 const LabelValueGrid = ({ header, items }) => {
+  const { tw } = useTheme();
   return (
     <View style={tw`border ${themeBorder} rounded-xl p-4 ${themeBackground}`}>
       {items.map((item, itemIndex) => (

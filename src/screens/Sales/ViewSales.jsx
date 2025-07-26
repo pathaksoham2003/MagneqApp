@@ -12,24 +12,25 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useSales from '../../services/useSales';
-import { tw } from '../../App';
+import useTheme from '../../hooks/useTheme';
 import SidebarLayout from '../../layout/SidebarLayout';
 
 // Utility function for status formatting as React Native components
-const formatStatus = status => {
+const formatStatus = (status,tw) => {
+  
   if (typeof status === 'boolean') {
     return (
       <View
-        style={[
-          tw`px-2 py-1 rounded-full`,
-          status ? tw`bg-green-100` : tw`bg-yellow-100`,
-        ]}
+      style={[
+        tw`px-2 py-1 rounded-full`,
+        status ? tw`bg-green-100` : tw`bg-yellow-100`,
+      ]}
       >
         <Text
           style={
             status ? tw`text-green-700 text-xs` : tw`text-yellow-700 text-xs`
           }
-        >
+          >
           {status ? 'Completed' : 'Pending'}
         </Text>
       </View>
@@ -51,6 +52,7 @@ const formatCurrency = value => {
 
 const ViewSales = ({ navigation }) => {
   const route = useRoute();
+  const { tw } = useTheme();
   const { id } = route.params;
   const {
     getSaleById,
@@ -191,7 +193,7 @@ const ViewSales = ({ navigation }) => {
               return (
                 <View key={key} style={tw`flex-row justify-between mb-2`}>
                   <Text style={tw`font-semibold`}>{key}</Text>
-                  {formatStatus(val)}
+                  {formatStatus(val,tw)}
                 </View>
               );
             } else if (key === 'Total Price' || key === 'Recieved Amount') {
@@ -241,7 +243,7 @@ const ViewSales = ({ navigation }) => {
                     Number(item.quantity) * Number(item.rate_per_unit || 0)
                   ).toFixed(2)}
                 </Text>
-                {formatStatus(item.status)}
+                {formatStatus(item.status,tw)}
               </View>
             ))}
 
@@ -284,7 +286,7 @@ const ViewSales = ({ navigation }) => {
                 <Text style={tw`flex-2`}>{item.finished_good}</Text>
                 <Text style={tw`flex-1`}>{item.rate_per_unit}</Text>
                 <Text style={tw`flex-1`}>{item.item_total_price}</Text>
-                {formatStatus(item.status)}
+                {formatStatus(item.status,tw)}
               </View>
             ))}
           </>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { tw } from '../../App';
 import Input from '../../components/common/Input';
 import Label from '../../components/common/Label';
 import Select from '../../components/common/Select';
@@ -15,9 +14,11 @@ import useAuth from '../../services/useAuth';
 import { useMutation } from '@tanstack/react-query';
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'; // Optional in RN
 import { getItem, setItem } from '../../utils/localStorage';
+import useTheme from '../../hooks/useTheme';
 
 const LoginScreen = ({ navigation, onLogin }) => {
   const dispatch = useDispatch();
+  const { tw } = useTheme();
   const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +47,7 @@ const LoginScreen = ({ navigation, onLogin }) => {
     onSuccess: data => {
       if (data?.data?.token) {
         dispatch(loginUser(data.data));
-        setItem('token',data.data.token);
+        setItem('token', data.data.token);
         // Use react-navigation or any route jump
         onLogin();
       } else {
