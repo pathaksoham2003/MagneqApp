@@ -14,35 +14,36 @@ import DynamicTable from '../../components/common/DynamicTable';
 import SidebarLayout from '../../layout/SidebarLayout';
 import { useNavigation } from '@react-navigation/native';
 import { themeText } from '../../utils/helper';
+import Button from '../../components/common/Button';
 
 const filterTableData = (headers, rows, keysToShow) => {
   // Find indexes of columns we want to keep
   const lowerHeaders = headers.map(h => h.toLowerCase());
   const indexesToKeep = keysToShow
-  .map(key => lowerHeaders.indexOf(key))
-  .filter(i => i >= 0);
-  
+    .map(key => lowerHeaders.indexOf(key))
+    .filter(i => i >= 0);
+
   // Filter headers by these indexes
   const filteredHeaders = indexesToKeep.map(i => headers[i]);
-  
+
   // Filter each row's data array by indexesToKeep
   const filteredRows = rows.map(row => {
     const filteredData = indexesToKeep.map(i => row.data[i]);
     return { ...row, data: filteredData };
   });
-  
+
   return { filteredHeaders, filteredRows };
 };
 
 const Stores = () => {
   const navigation = useNavigation();
-    const { tw } = useTheme();
-  
+  const { tw } = useTheme();
+
   const [activeClass, setActiveClass] = useState('A');
   const [search, setSearch] = useState('');
-  
+
   const { getRawMaterialsByClass } = useRawMaterials();
-  
+
   const fetchPage = ({ pageParam = 1 }) =>
     getRawMaterialsByClass(activeClass, {
       page: pageParam,
@@ -69,7 +70,7 @@ const Stores = () => {
     },
   });
 
-  console.log(data)
+  console.log(data);
 
   useEffect(() => {
     refetch();
@@ -78,13 +79,13 @@ const Stores = () => {
   const flatData = data?.pages.flatMap(page => page.item) || [];
   const headers = data?.pages[0]?.header || [];
 
-const handleRowClick = row => {
-  // Assuming row has item_id and class_type (or activeClass)
-  navigation.navigate('RawMaterialDetail', {
-    class_type: activeClass, // pass current class
-    id: row.item_id,
-  });
-};
+  const handleRowClick = row => {
+    // Assuming row has item_id and class_type (or activeClass)
+    navigation.navigate('RawMaterialDetail', {
+      class_type: activeClass, // pass current class
+      id: row.item_id,
+    });
+  };
   const handleEndReached = () => {
     if (hasNextPage) {
       fetchNextPage();
@@ -94,6 +95,9 @@ const handleRowClick = row => {
   return (
     <SidebarLayout>
       <View style={tw`px-4 py-4`}>
+        <View>
+          <Button fullWidth onClick={()=>navigation.navigate("AddStock")}>Add to Stock</Button>
+        </View>
         <StoreHeader activeClass={activeClass} onClassChange={setActiveClass} />
 
         <TextInput

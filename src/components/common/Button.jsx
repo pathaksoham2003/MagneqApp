@@ -46,7 +46,7 @@ const Button = ({
       ) : (
         <View style={tw`flex-row items-center`}>
           {startIcon && <View style={tw`mr-1`}>{startIcon}</View>}
-          <Text style={tw`${textColor} text-base font-medium`}>
+          <Text style={tw`${textColor} font-medium`}>
             {children}
           </Text>
           {endIcon && <View style={tw`ml-1`}>{endIcon}</View>}
