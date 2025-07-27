@@ -1,68 +1,149 @@
+import { View, Text, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import usePurchase from '../../services/usePurchase';
+import Button from '../../components/common/Button';
 import DynamicTable from '../../components/common/DynamicTable';
 import useTheme from '../../hooks/useTheme';
+import Icon from 'react-native-vector-icons/Ionicons';
+import CreatePurchase from './CreatePurchase';
+import PurchaseOrderDetails from './PurchaseOrderDetails';
+import SuccessModel from '../../components/common/SuccessModel';
 import SidebarLayout from '../../layout/SidebarLayout';
-
-const headers = [
-  'Production Id',
-  'Vendor Name',
-  'Date of purchase',
-  'Order Details',
-  'Status',
-];
 
 const Purchase = () => {
   const { tw } = useTheme();
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
   const { getAllPurchaseOrders } = usePurchase();
-  const navigation = useNavigation();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['Purchases', page, search],
-    queryFn: () => getAllPurchaseOrders(page, search),
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['purchase'],
+    queryFn: () => getAllPurchaseOrders(),
     staleTime: 5 * 60 * 1000,
   });
+  const navigation = useNavigation();
 
   const handleRowClick = item => {
     navigation.navigate('PurchaseDetail', { id: item.item_id });
   };
 
-  if (isLoading) {
-    return (
-      <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" />
-        <Text style={tw`text-center mt-2`}>Loading purchase data...</Text>
-      </View>
-    );
-  }
+  const purchaseData = {
+    header: ['Vendor Name', 'Order Details', 'Status'],
+    item:
+      data?.item?.map(entry => ({
+        id: entry.id,
+        data: [
+          entry.data?.[1] || 'N/A', // Vendor Name
+          Array.isArray(entry.data?.[3]) ? entry.data[3].join(', ') : 'N/A', // Order Details
+          entry.data?.[4] || 'N/A', // Status
+        ],
+      })) || [],
+  };
 
-  if (isError) {
-    return (
-      <View style={tw`flex-1 justify-center items-center`}>
-        <Text style={tw`text-red-500`}>Error loading purchase data.</Text>
-      </View>
-    );
-  }
-
-  const tableData = {
-    item: data?.item || [],
+  const handleCreatePurchase = () => {
+    setShowCreateModal(false);
+    setShowSuccessModal(true);
+    setTimeout(() => {
+      setShowSuccessModal(false);
+      setShowOrderDetails(true);
+    }, 2000);
   };
 
   return (
     <SidebarLayout>
-      <View style={tw`flex-1 px-4 py-2`}>
-        <Text style={tw`text-2xl font-bold mt-4 mb-3`}>Purchase Orders</Text>
-        <DynamicTable
-          header={headers}
-          tableData={tableData}
-          onRowClick={handleRowClick}
-        />
-      </View>
+      <ScrollView
+        style={tw`p-4`}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        <Text style={tw`text-lg font-bold mb-4`}>Purchase</Text>
+
+        {/* Top Buttons */}
+        <View style={tw`gap-2 mb-3`}>
+          <Button
+            fullWidth
+            onPress={() => navigation.navigate("CreatePurchase")}
+            startIcon={<Icon name="cart-outline" size={18} color="#fff" />}
+          >
+            Purchase Goods
+          </Button>
+          <Button
+            fullWidth
+            startIcon={<Icon name="clipboard-outline" size={18} color="#fff" />}
+          >
+            Track Purchase Goods
+          </Button>
+        </View>
+
+        {/* Alert */}
+        <View
+          style={tw`border border-red-500 bg-red-50 px-4 py-2 rounded-md mb-4 flex-row items-center`}
+        >
+          <Icon
+            name="alert-circle-outline"
+            size={20}
+            color="red"
+            style={tw`mr-2`}
+          />
+          <Text style={tw`text-red-700`}>
+            Items not in Stock, need to be purchased
+          </Text>
+        </View>
+
+        {/* Inventory Cards */}
+        <View style={tw`space-y-3 mb-6`}>
+          {['A Class', 'B Class', 'C Class'].map((label, index) => {
+            const inStock = index === 0;
+            return (
+              <View
+                key={index}
+                style={tw`flex-row items-center mt-3 bg-white border rounded-xl p-4 shadow-sm`}
+              >
+                <Icon
+                  name={index === 2 ? 'briefcase-outline' : 'cube-outline'}
+                  size={24}
+                  color="black"
+                  style={tw`mr-3`}
+                />
+                <View>
+                  <Text style={tw`text-lg font-bold text-black`}>{label}</Text>
+                  <Text
+                    style={tw`text-[15px] mt-1 ${
+                      inStock ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
+                    {inStock ? '↑ in Stock' : '↓ not in Stock'}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Table of Purchase Orders */}
+        <Text style={tw`text-lg font-bold mb-2`}>Purchase Orders</Text>
+        <DynamicTable onRowClick={handleRowClick} header={purchaseData.header} tableData={purchaseData} />
+
+        {/* Show Purchase Order Details below table */}
+        {showOrderDetails && <PurchaseOrderDetails />}
+      </ScrollView>
+
+      {/* Modal for creating order */}
+      <CreatePurchase
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleCreatePurchase}
+      />
+
+      {/* Success Modal */}
+      <SuccessModel
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message="Purchase Order Created Successfully"
+      />
     </SidebarLayout>
   );
 };

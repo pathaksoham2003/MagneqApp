@@ -208,7 +208,7 @@ const AddStock = () => {
           </View>
         )}
 
-        <SuccessModal visible={showModal} onClose={() => setShowModal(false)} />
+        <SuccessModal open={showModal} onClose={() => setShowModal(false)} />
       </ScrollView>
     </SidebarLayout>
   );

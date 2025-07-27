@@ -11,41 +11,7 @@ import {
 import useTheme from '../../hooks/useTheme';
 import useFinishedGoods from '../../services/useFinishedGoods';
 import { useQuery } from '@tanstack/react-query';
-
-const Dropdown = ({ label, data, value, setValue }) => {
-  const [open, setOpen] = useState(false);
-  const { tw } = useTheme();
-
-  return (
-    <View style={tw`mb-3`}>
-      <Text style={tw`mb-1 text-sm text-gray-700`}>{label}</Text>
-      <TouchableOpacity
-        style={tw`border border-gray-300 rounded p-3 bg-white`}
-        onPress={() => setOpen(!open)}
-      >
-        <Text style={tw`text-gray-900`}>
-          {value ? value.toString() : `Select ${label}`}
-        </Text>
-      </TouchableOpacity>
-      {open && (
-        <View style={tw`border border-gray-300 rounded mt-1 bg-white`}>
-          {data.map(item => (
-            <TouchableOpacity
-              key={item}
-              onPress={() => {
-                setValue(item);
-                setOpen(false);
-              }}
-              style={tw`p-2 border-b border-gray-100`}
-            >
-              <Text style={tw`text-gray-800`}>{item}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
+import Dropdown from '../../components/common/DropDown';
 
 const OrderItemsForm = ({
   items,
@@ -61,11 +27,10 @@ const OrderItemsForm = ({
   power,
   setPower,
 }) => {
-  const {tw} = useTheme();
   const { getModalConfig } = useFinishedGoods();
   const [availablePowers, setAvailablePowers] = useState([]);
   const [availableRatios, setAvailableRatios] = useState([]);
-
+  const { tw } = useTheme();
   const {
     data: modelConfig,
     isLoading,
