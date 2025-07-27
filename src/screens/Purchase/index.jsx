@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import usePurchase from '../../services/usePurchase';
 import Button from '../../components/common/Button';
 import DynamicTable from '../../components/common/DynamicTable';
-import useTheme from '../../hooks/useTheme'
+import useTheme from '../../hooks/useTheme';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CreatePurchase from './CreatePurchase';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
@@ -25,11 +25,16 @@ const Purchase = () => {
   });
 
   const purchaseData = {
-    header: ['Class', 'Vendor name'],
-    item: Array(6).fill({
-      id: Math.random().toString(),
-      data: ['abc', 'Mohan Kumar'],
-    }),
+    header: ['Vendor Name', 'Order Details', 'Status'],
+    item:
+      data?.item?.map(entry => ({
+        id: entry.id,
+        data: [
+          entry.data?.[1] || 'N/A', // Vendor Name
+          Array.isArray(entry.data?.[3]) ? entry.data[3].join(', ') : 'N/A', // Order Details
+          entry.data?.[4] || 'N/A', // Status
+        ],
+      })) || [],
   };
 
   const handleCreatePurchase = () => {
@@ -43,8 +48,11 @@ const Purchase = () => {
 
   return (
     <SidebarLayout>
-      <ScrollView style={tw`p-4`} showsVerticalScrollIndicator={false}   contentContainerStyle={{ paddingBottom: 100 }}
-  >
+      <ScrollView
+        style={tw`p-4`}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         <Text style={tw`text-lg font-bold mb-4`}>Purchase</Text>
 
         {/* Top Buttons */}
@@ -62,12 +70,18 @@ const Purchase = () => {
           >
             Track Purchase Goods
           </Button>
-          
         </View>
 
         {/* Alert */}
-        <View style={tw`border border-red-500 bg-red-50 px-4 py-2 rounded-md mb-4 flex-row items-center`}>
-          <Icon name="alert-circle-outline" size={20} color="red" style={tw`mr-2`} />
+        <View
+          style={tw`border border-red-500 bg-red-50 px-4 py-2 rounded-md mb-4 flex-row items-center`}
+        >
+          <Icon
+            name="alert-circle-outline"
+            size={20}
+            color="red"
+            style={tw`mr-2`}
+          />
           <Text style={tw`text-red-700`}>
             Items not in Stock, need to be purchased
           </Text>
@@ -105,10 +119,7 @@ const Purchase = () => {
 
         {/* Table of Purchase Orders */}
         <Text style={tw`text-lg font-bold mb-2`}>Purchase Orders</Text>
-        <DynamicTable
-          header={purchaseData.header}
-          tableData={purchaseData}
-        />
+        <DynamicTable header={purchaseData.header} tableData={purchaseData} />
 
         {/* Show Purchase Order Details below table */}
         {showOrderDetails && <PurchaseOrderDetails />}
