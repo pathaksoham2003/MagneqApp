@@ -6,7 +6,7 @@ import SidebarLayout from '../../layout/SidebarLayout';
 const PurchaseDetail = () => {
   const route = useRoute();
   const { id: purchaseId } = route.params;
-  console.log(purchaseId)
+
   return (
     <SidebarLayout>
       <View>

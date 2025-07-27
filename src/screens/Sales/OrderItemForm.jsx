@@ -61,6 +61,7 @@ const OrderItemsForm = ({
   power,
   setPower,
 }) => {
+  const {tw} = useTheme();
   const { getModalConfig } = useFinishedGoods();
   const [availablePowers, setAvailablePowers] = useState([]);
   const [availableRatios, setAvailableRatios] = useState([]);
