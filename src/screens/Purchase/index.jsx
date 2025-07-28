@@ -29,7 +29,7 @@ const Purchase = () => {
   const handleRowClick = item => {
     navigation.navigate('PurchaseDetail', { id: item.item_id });
   };
-
+console.log(data)
   const purchaseData = {
     header: ['Vendor Name', 'Order Details', 'Status'],
     item:

@@ -23,7 +23,6 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
   const [materialClass, setMaterialClass] = useState('');
   const [materialType, setMaterialType] = useState('');
   const [materialName, setMaterialName] = useState('');
-  const [selectedMaterial, setSelectedMaterial] = useState('');
   const [selectedRawMaterial, setSelectedRawMaterial] = useState('');
   const [quantity, setQuantity] = useState('');
   const [vendor, setVendor] = useState('');
@@ -38,10 +37,7 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
 
   const [filterConfig, setFilterConfig] = useState(null);
 
-  const {
-    data: filteredData,
-    refetch: refetchFilteredMaterials,
-  } = useQuery({
+  const { data: filteredData, refetch: refetchFilteredMaterials } = useQuery({
     queryKey: ['filteredRM', materialClass, materialType, materialName],
     queryFn: () =>
       getFilteredRawMaterials({
@@ -51,8 +47,7 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
       }),
     enabled: !!materialClass,
   });
-  console.log(filteredData)
-
+console.log(filteredData)
   const { data: vendorData } = useQuery({
     queryKey: ['vendors', debouncedSearch],
     queryFn: () => getAllVendors({ limit: 20, search: debouncedSearch }),
@@ -63,7 +58,6 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     queryKey: ['rawMaterialConfig'],
     queryFn: () => getRawMaterialFilterConfig(),
   });
-
 
   useEffect(() => {
     if (configData) {
@@ -81,12 +75,20 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
       ? filterConfig[materialClass].names
       : [];
 
-  const rawMaterialOptions = filteredData?.data?.map(rm => rm.name || rm._id) || [];
+  const filterItems = filteredData?.data?.map(item => item.name) || [];
 
   const handleAddItem = () => {
-    if (!materialClass || (!materialType && !materialName) || !selectedRawMaterial || !quantity) return;
+    if (
+      !materialClass ||
+      (!materialType && !materialName) ||
+      !selectedRawMaterial ||
+      !quantity
+    )
+      return;
 
-    const selectedData = filteredData?.data?.find(rm => rm.name === selectedRawMaterial);
+    const selectedData = filteredData?.data?.find(
+      rm => rm.name === selectedRawMaterial,
+    );
 
     const newItem = {
       class: materialClass,
@@ -128,6 +130,7 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
       <View style={tw`bg-white w-full rounded-2xl p-4`}>
         <Text style={tw`text-lg font-bold mb-4`}>Create Purchase Order</Text>
         <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Class Dropdown */}
           <Dropdown
             label="Class"
             data={classOptions}
@@ -137,11 +140,24 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
               setMaterialType('');
               setMaterialName('');
               setSelectedRawMaterial('');
-              refetchFilteredMaterials();
             }}
           />
 
-          {typeOptions.length > 0 && (
+          {/* Conditionally render dropdowns based on class */}
+          {materialClass === 'A' && nameOptions.length > 0 && (
+            <Dropdown
+              label="Name"
+              data={nameOptions}
+              value={materialName}
+              setValue={val => {
+                setMaterialName(val);
+                setSelectedRawMaterial('');
+                refetchFilteredMaterials();
+              }}
+            />
+          )}
+
+          {materialClass === 'B' && typeOptions.length > 0 && (
             <Dropdown
               label="Type"
               data={typeOptions}
@@ -154,9 +170,9 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             />
           )}
 
-          {nameOptions.length > 0 && (
+          {materialClass === 'C' && nameOptions.length > 0 && (
             <Dropdown
-              label="Raw Material Name"
+              label="Name"
               data={nameOptions}
               value={materialName}
               setValue={val => {
@@ -167,15 +183,15 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             />
           )}
 
-          {rawMaterialOptions.length > 0 && (
-            <Dropdown
-              label="Filtered Raw Material"
-              data={rawMaterialOptions}
-              value={selectedRawMaterial}
-              setValue={setSelectedRawMaterial}
-            />
-          )}
+          {/* Filtered raw materials */}
+          <Dropdown
+            label="Filtered Raw Material"
+            data={filterItems}
+            value={selectedRawMaterial}
+            setValue={setSelectedRawMaterial}
+          />
 
+          {/* Quantity Input */}
           <Text style={tw`text-sm mb-1`}>Quantity</Text>
           <TextInput
             style={tw`border rounded-md px-3 py-2 mb-2`}
@@ -185,19 +201,28 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             onChangeText={setQuantity}
           />
 
+          {/* Add More Items */}
           <TouchableOpacity onPress={handleAddItem} style={tw`mb-4`}>
             <Text style={tw`text-blue-600 text-sm`}>+ Add more Items</Text>
           </TouchableOpacity>
 
+          {/* Display Items */}
           {items.map((item, index) => (
             <View
               key={index}
               style={tw`flex-row justify-between items-center border rounded-md p-2 mb-2 bg-gray-100`}
             >
               <View>
-                <Text style={tw`text-sm`}>{item.class} {item.type ? `- ${item.type}` : ''} {item.name ? `- ${item.name}` : ''} - {item.material}</Text>
+                <Text style={tw`text-sm`}>
+                  {item.class} {item.type ? `- ${item.type}` : ''}{' '}
+                  {item.name ? `- ${item.name}` : ''} - {item.material}
+                </Text>
                 <Text style={tw`text-sm`}>Qty: {item.quantity}</Text>
-                {item.specification && <Text style={tw`text-xs text-gray-500`}>{item.specification}</Text>}
+                {item.specification && (
+                  <Text style={tw`text-xs text-gray-500`}>
+                    {item.specification}
+                  </Text>
+                )}
               </View>
               <TouchableOpacity onPress={() => handleDeleteItem(index)}>
                 <Icon name="trash-outline" size={20} color="red" />
@@ -205,6 +230,7 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             </View>
           ))}
 
+          {/* Vendor Dropdown */}
           <Text style={tw`text-sm mb-1`}>Vendor Name</Text>
           <SearchableDropdown
             data={(vendorData?.item || []).map(v => ({
@@ -217,6 +243,7 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             containerStyle="mb-4"
           />
 
+          {/* Description */}
           <Text style={tw`text-sm mb-1`}>Description</Text>
           <TextInput
             multiline
@@ -226,6 +253,7 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             onChangeText={setDescription}
           />
 
+          {/* Submit Button */}
           <Button fullWidth onClick={handleSubmit}>
             Submit Purchase Order
           </Button>
