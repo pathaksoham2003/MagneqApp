@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useTheme from '../../hooks/useTheme';
 import useDebounce from '../../hooks/useDebounce';
 import useManage from '../../services/useManage';
@@ -16,8 +16,9 @@ import Button from '../../components/common/Button';
 import SearchableDropdown from '../../components/common/SearchableDropdown';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Dropdown from '../../components/common/DropDown';
+import usePurchase from '../../services/usePurchase';
 
-const CreatePurchase = ({ visible, onClose, onSuccess }) => {
+const CreatePurchase = ({ navigation }) => {
   const { tw } = useTheme();
 
   const [materialClass, setMaterialClass] = useState('');
@@ -25,16 +26,21 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
   const [materialName, setMaterialName] = useState('');
   const [selectedRawMaterial, setSelectedRawMaterial] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [pricePerUnit, setPricePerUnit] = useState(''); // Added price per unit state
   const [vendor, setVendor] = useState('');
+  const [vendorName, setVendorName] = useState(''); // Added vendor name state
+  const [purchaseDate, setPurchaseDate] = useState(''); // Added purchase date state
   const [description, setDescription] = useState('');
   const [items, setItems] = useState([]);
+  const [error, setError] = useState(''); // Added error state
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search.trim(), 150);
 
-  const { getAllVendors } = useManage();
-  const { getRawMaterialFilterConfig, getFilteredRawMaterials } = useRawMaterials();
-
+  const { getAllVendors } = useManage(); // Added createPO from useManage
+  const { getRawMaterialFilterConfig, getFilteredRawMaterials } =
+    useRawMaterials();
+  const { createPurchaseOrder } = usePurchase();
   const [filterConfig, setFilterConfig] = useState(null);
 
   const { data: filteredData, refetch: refetchFilteredMaterials } = useQuery({
@@ -60,13 +66,39 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     queryFn: () => getRawMaterialFilterConfig(),
   });
 
-  console.log(configData)
+  const queryClient = useQueryClient();
+  const {
+    mutate: createPO,
+    isPending,
+    isSuccess,
+    isError,
+  } = useMutation({
+    mutationFn: order => createPurchaseOrder(order),
+    onSuccess: () => {
+      console.log("wdw")
+      queryClient.invalidateQueries({ queryKey: ['purchase'] });
+      setVendorName('');
+      setPurchaseDate('');
+      navigation.goBack()
+    },
+    onError: err => {
+      console.error('Order creation failed:', err);
+    },
+  });
+
+  console.log(configData);
 
   useEffect(() => {
     if (configData) {
       setFilterConfig(configData?.data || configData);
     }
   }, [configData]);
+
+  // Set default purchase date to today
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setPurchaseDate(today);
+  }, []);
 
   const classOptions = filterConfig ? Object.keys(filterConfig) : [];
   const typeOptions =
@@ -91,45 +123,49 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
       materialName,
       shouldShow: shouldShowFilteredDropdown(),
       filterItemsLength: filterItems.length,
-      filteredData: filteredData
+      filteredData: filteredData,
     });
   }, [materialClass, materialType, materialName, filteredData]);
 
   // Handle different possible response structures with better error handling
   const getRawMaterialsArray = () => {
     console.log('Raw filteredData:', filteredData);
-    
+
     if (!filteredData) {
       console.log('No filteredData available');
       return [];
     }
-    
+
     // Try different possible structures
     if (Array.isArray(filteredData)) {
       console.log('filteredData is direct array, length:', filteredData.length);
       return filteredData;
     }
     if (filteredData.data && Array.isArray(filteredData.data)) {
-      console.log('filteredData.data is array, length:', filteredData.data.length);
+      console.log(
+        'filteredData.data is array, length:',
+        filteredData.data.length,
+      );
       return filteredData.data;
     }
     if (filteredData.items && Array.isArray(filteredData.items)) {
-      console.log('filteredData.items is array, length:', filteredData.items.length);
+      console.log(
+        'filteredData.items is array, length:',
+        filteredData.items.length,
+      );
       return filteredData.items;
     }
-    
+
     console.log('No valid array found in filteredData structure');
     return [];
   };
 
   // Update to display material by name + type + specification
-  const filterItems = getRawMaterialsArray().map(
-    item => ({
-      id: item._id,
-      label: `${item.name} - ${item.type}`,
-      fullItem: item
-    })
-  );
+  const filterItems = getRawMaterialsArray().map(item => ({
+    id: item._id,
+    label: `${item.name} - ${item.type}`,
+    fullItem: item,
+  }));
 
   // Check if we should show the filtered materials dropdown - now shows for all classes
   const shouldShowFilteredDropdown = () => {
@@ -142,20 +178,22 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
       !materialClass ||
       (!materialType && !materialName) ||
       !selectedRawMaterial ||
-      !quantity
+      !quantity ||
+      !pricePerUnit // Added price per unit validation
     ) {
       console.log('Validation failed:', {
         materialClass,
         materialType,
         materialName,
         selectedRawMaterial,
-        quantity
+        quantity,
+        pricePerUnit,
       });
       return;
     }
 
     const selectedData = getRawMaterialsArray().find(
-      rm => rm._id === selectedRawMaterial.id
+      rm => rm._id === selectedRawMaterial.id,
     );
 
     if (!selectedData) {
@@ -165,11 +203,13 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
 
     const newItem = {
       id: selectedData._id,
+      raw_material_id: selectedData._id, // Added for backend payload
       class: materialClass,
       type: materialType || selectedData.type,
       name: materialName || selectedData.name,
       material: selectedRawMaterial.label,
-      quantity,
+      quantity: parseFloat(quantity), // Convert to number
+      price_per_unit: parseFloat(pricePerUnit), // Added price per unit
       specification: selectedData?.other_specification?.value || '',
     };
 
@@ -178,7 +218,8 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     // Only reset the item-specific fields, keep class/type/name for easier multiple additions
     setSelectedRawMaterial('');
     setQuantity('');
-    
+    setPricePerUnit(''); // Reset price per unit
+
     console.log('Item added successfully:', newItem);
     console.log('Updated items list:', [...items, newItem]);
   };
@@ -189,178 +230,278 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     setItems(updatedItems);
   };
 
-  const handleSubmit = () => {
-    const payload = {
-      items,
-      vendor,
-      description,
-    };
+  const handleSubmit = async () => {
+    try {
+      setError(''); // Clear any previous errors
 
-    console.log('Submit Payload:', payload);
-    if (onSuccess) onSuccess();
+      // Validation
+      if (!vendorName.trim()) {
+        setError('Please enter vendor name');
+        return;
+      }
+
+      if (!purchaseDate) {
+        setError('Please select purchase date');
+        return;
+      }
+
+      if (items.length === 0) {
+        setError('Please add at least one item to the purchase order');
+        return;
+      }
+
+      const payload = {
+        vendor_name: vendorName,
+        purchasing_date: purchaseDate,
+        items: items.map(({ raw_material_id, quantity, price_per_unit }) => ({
+          raw_material_id,
+          quantity,
+          price_per_unit,
+        })),
+      };
+
+      console.log('Submit Payload:', payload);
+      createPO(payload);
+    } catch (error) {
+      console.error('Failed to create PO:', error);
+      setError('Failed to create PO. Please try again.');
+    }
   };
-
-  
 
   return (
     <SidebarLayout>
       <View style={tw`bg-white w-full rounded-2xl p-4`}>
         <Text style={tw`text-lg font-bold mb-4`}>Create Purchase Order</Text>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Dropdown
-            label="Class"
-            data={classOptions}
-            value={materialClass}
-            setValue={val => {
-              setMaterialClass(val);
-              setMaterialType('');
-              setMaterialName('');
-              setSelectedRawMaterial('');
-            }}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`pb-6`}
+        >
+          {/* Error message */}
+          {error ? (
+            <View
+              style={tw`bg-red-50 border border-red-200 rounded-md p-3 mb-4`}
+            >
+              <Text style={tw`text-red-600 text-sm`}>{error}</Text>
+            </View>
+          ) : null}
+
+          {/* Vendor Selection */}
+          <Text style={tw`text-sm mb-1`}>Vendor *</Text>
+          <SearchableDropdown
+            data={(vendorData?.item || []).map(v => ({
+              id: v.id,
+              label: v.data[0],
+            }))}
+            selectedValue={vendorName ? { label: vendorName } : null}
+            onSelect={item => setVendorName(item.label)}
+            placeholder="Search and select vendor"
+            containerStyle="mb-3"
           />
 
-          {materialClass === 'A' && nameOptions.length > 0 && (
+          {/* Purchase Date Input */}
+          <Text style={tw`text-sm mb-1`}>Purchase Date *</Text>
+          <TextInput
+            style={tw`border rounded-md px-3 py-2 mb-3`}
+            placeholder="YYYY-MM-DD"
+            value={purchaseDate}
+            onChangeText={setPurchaseDate}
+          />
+
+          <View style={tw`border-t pt-4 mt-2 mb-4`}>
+            <Text style={tw`text-md font-semibold mb-3`}>Add Items</Text>
+
             <Dropdown
-              label="Name"
-              data={nameOptions}
-              value={materialName}
+              label="Class"
+              data={classOptions}
+              value={materialClass}
               setValue={val => {
-                setMaterialName(val);
+                setMaterialClass(val);
+                setMaterialType('');
+                setMaterialName('');
                 setSelectedRawMaterial('');
               }}
             />
-          )}
 
-          {materialClass === 'B' && typeOptions.length > 0 && (
-            <Dropdown
-              label="Type"
-              data={typeOptions}
-              value={materialType}
-              setValue={val => {
-                setMaterialType(val);
-                setSelectedRawMaterial('');
-              }}
-            />
-          )}
+            {materialClass === 'A' && nameOptions.length > 0 && (
+              <Dropdown
+                label="Name"
+                data={nameOptions}
+                value={materialName}
+                setValue={val => {
+                  setMaterialName(val);
+                  setSelectedRawMaterial('');
+                }}
+              />
+            )}
 
-          {materialClass === 'C' && nameOptions.length > 0 && (
-            <Dropdown
-              label="Name"
-              data={nameOptions}
-              value={materialName}
-              setValue={val => {
-                setMaterialName(val);
-                setSelectedRawMaterial('');
-                // Trigger refetch when both name and type are selected for Class C
-                if (materialType && val) {
-                  console.log('Refetching for Class C with name:', val, 'and type:', materialType);
-                }
-              }}
-            />
-          )}
+            {materialClass === 'B' && typeOptions.length > 0 && (
+              <Dropdown
+                label="Type"
+                data={typeOptions}
+                value={materialType}
+                setValue={val => {
+                  setMaterialType(val);
+                  setSelectedRawMaterial('');
+                }}
+              />
+            )}
 
-          {materialClass === 'C' && typeOptions.length > 0 && (
-            <Dropdown
-              label="Type"
-              data={typeOptions}
-              value={materialType}
-              setValue={val => {
-                setMaterialType(val);
-                setSelectedRawMaterial('');
-                // Trigger refetch when both name and type are selected for Class C
-                if (materialName && val) {
-                  console.log('Refetching for Class C with type:', val, 'and name:', materialName);
-                }
-              }}
-            />
-          )}
+            {materialClass === 'C' && nameOptions.length > 0 && (
+              <Dropdown
+                label="Name"
+                data={nameOptions}
+                value={materialName}
+                setValue={val => {
+                  setMaterialName(val);
+                  setSelectedRawMaterial('');
+                  // Trigger refetch when both name and type are selected for Class C
+                  if (materialType && val) {
+                    console.log(
+                      'Refetching for Class C with name:',
+                      val,
+                      'and type:',
+                      materialType,
+                    );
+                  }
+                }}
+              />
+            )}
 
-          {/* Show filtered raw materials dropdown for all classes */}
-          {shouldShowFilteredDropdown() && (
-            <View style={tw`mb-3`}>
-              <Text style={tw`text-sm mb-1`}>Select Raw Material</Text>
-              
-              {filterItems.length > 0 ? (
-                <>
-                  <SearchableDropdown
-                    data={filterItems}
-                    selectedValue={selectedRawMaterial}
-                    onSelect={(item) => {
-                      console.log('Selected raw material:', item);
-                      setSelectedRawMaterial(item);
-                    }}
-                    placeholder="Search and select raw material"
-                    displayKey="label"
-                    containerStyle="mb-2"
-                  />
-                  
-                  {/* Show specification if a material is selected */}
-                  {selectedRawMaterial && selectedRawMaterial.fullItem?.other_specification?.value && (
-                    <Text style={tw`text-xs text-gray-600 mb-2 p-2 bg-gray-50 rounded`}>
-                      Specification: {selectedRawMaterial.fullItem.other_specification.value}
-                    </Text>
-                  )}
-                </>
-              ) : (
-                <View style={tw`border rounded-md px-3 py-2 mb-2 bg-gray-50`}>
-                  <Text style={tw`text-sm text-gray-500`}>
-                    {!filteredData 
-                      ? 'Loading raw materials...' 
-                      : materialClass === 'A' && !materialName
+            {materialClass === 'C' && typeOptions.length > 0 && (
+              <Dropdown
+                label="Type"
+                data={typeOptions}
+                value={materialType}
+                setValue={val => {
+                  setMaterialType(val);
+                  setSelectedRawMaterial('');
+                  // Trigger refetch when both name and type are selected for Class C
+                  if (materialName && val) {
+                    console.log(
+                      'Refetching for Class C with type:',
+                      val,
+                      'and name:',
+                      materialName,
+                    );
+                  }
+                }}
+              />
+            )}
+
+            {/* Show filtered raw materials dropdown for all classes */}
+            {shouldShowFilteredDropdown() && (
+              <View style={tw`mb-3`}>
+                <Text style={tw`text-sm mb-1`}>Select Raw Material</Text>
+
+                {filterItems.length > 0 ? (
+                  <>
+                    <SearchableDropdown
+                      data={filterItems}
+                      selectedValue={selectedRawMaterial}
+                      onSelect={item => {
+                        console.log('Selected raw material:', item);
+                        setSelectedRawMaterial(item);
+                      }}
+                      placeholder="Search and select raw material"
+                      displayKey="label"
+                      containerStyle="mb-2"
+                    />
+
+                    {/* Show specification if a material is selected */}
+                    {selectedRawMaterial &&
+                      selectedRawMaterial.fullItem?.other_specification
+                        ?.value && (
+                        <Text
+                          style={tw`text-xs text-gray-600 mb-2 p-2 bg-gray-50 rounded`}
+                        >
+                          Specification:{' '}
+                          {
+                            selectedRawMaterial.fullItem.other_specification
+                              .value
+                          }
+                        </Text>
+                      )}
+                  </>
+                ) : (
+                  <View style={tw`border rounded-md px-3 py-2 mb-2 bg-gray-50`}>
+                    <Text style={tw`text-sm text-gray-500`}>
+                      {!filteredData
+                        ? 'Loading raw materials...'
+                        : materialClass === 'A' && !materialName
                         ? 'Please select a Name to see raw materials'
                         : materialClass === 'B' && !materialType
-                          ? 'Please select a Type to see raw materials'
-                          : materialClass === 'C' && (!materialName || !materialType)
-                            ? 'Please select both Name and Type to see raw materials'
-                            : 'No raw materials found for the selected criteria'
-                    }
-                  </Text>
-                  {/* Debug info - remove this in production */}
-                  {__DEV__ && filteredData && (
-                    <Text style={tw`text-xs text-red-500 mt-1`}>
-                      Debug: filteredData structure: {JSON.stringify(filteredData, null, 2)}
+                        ? 'Please select a Type to see raw materials'
+                        : materialClass === 'C' &&
+                          (!materialName || !materialType)
+                        ? 'Please select both Name and Type to see raw materials'
+                        : 'No raw materials found for the selected criteria'}
                     </Text>
-                  )}
-                </View>
-              )}
+                    {/* Debug info - remove this in production */}
+                    {__DEV__ && filteredData && (
+                      <Text style={tw`text-xs text-red-500 mt-1`}>
+                        Debug: filteredData structure:{' '}
+                        {JSON.stringify(filteredData, null, 2)}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
+            )}
+
+            <View style={tw`flex-row gap-3 mb-3`}>
+              <View style={tw`flex-1`}>
+                <Text style={tw`text-sm mb-1`}>Quantity *</Text>
+                <TextInput
+                  style={tw`border rounded-md px-3 py-2`}
+                  placeholder="1"
+                  keyboardType="numeric"
+                  value={quantity}
+                  onChangeText={setQuantity}
+                />
+              </View>
+              <View style={tw`flex-1`}>
+                <Text style={tw`text-sm mb-1`}>Price per Unit *</Text>
+                <TextInput
+                  style={tw`border rounded-md px-3 py-2`}
+                  placeholder="0.00"
+                  keyboardType="numeric"
+                  value={pricePerUnit}
+                  onChangeText={setPricePerUnit}
+                />
+              </View>
             </View>
-          )}
 
-          <Text style={tw`text-sm mb-1`}>Quantity</Text>
-          <TextInput
-            style={tw`border rounded-md px-3 py-2 mb-2`}
-            placeholder="1"
-            keyboardType="numeric"
-            value={quantity}
-            onChangeText={setQuantity}
-          />
-
-          <TouchableOpacity 
-            onPress={handleAddItem} 
-            style={tw`mb-4 ${
-              !materialClass || 
-              (!materialType && !materialName) || 
-              !selectedRawMaterial || 
-              !quantity 
-                ? 'opacity-50' 
-                : ''
-            }`}
-            disabled={
-              !materialClass || 
-              (!materialType && !materialName) || 
-              !selectedRawMaterial || 
-              !quantity
-            }
-          >
-            <Text style={tw`text-blue-600 text-sm font-medium`}>
-              + Add Item to Purchase Order
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleAddItem}
+              style={tw`mb-4 ${
+                !materialClass ||
+                (!materialType && !materialName) ||
+                !selectedRawMaterial ||
+                !quantity ||
+                !pricePerUnit
+                  ? 'opacity-50'
+                  : ''
+              }`}
+              disabled={
+                !materialClass ||
+                (!materialType && !materialName) ||
+                !selectedRawMaterial ||
+                !quantity ||
+                !pricePerUnit
+              }
+            >
+              <Text style={tw`text-blue-600 text-sm font-medium`}>
+                + Add Item to Purchase Order
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Added Items List */}
           {items.length > 0 && (
             <View style={tw`mb-4`}>
-              <Text style={tw`text-sm font-medium mb-2`}>Added Items ({items.length})</Text>
+              <Text style={tw`text-sm font-medium mb-2`}>
+                Added Items ({items.length})
+              </Text>
               {items.map((item, index) => (
                 <View
                   key={index}
@@ -370,14 +511,28 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
                     <Text style={tw`text-sm font-medium text-gray-800`}>
                       {item.class} - {item.material}
                     </Text>
-                    <Text style={tw`text-sm text-gray-600`}>Quantity: {item.quantity}</Text>
+                    <View style={tw`flex-row justify-between mt-1`}>
+                      <Text style={tw`text-sm text-gray-600`}>
+                        Qty: {item.quantity}
+                      </Text>
+                      <Text style={tw`text-sm text-gray-600`}>
+                        ₹{item.price_per_unit}/unit
+                      </Text>
+                      <Text style={tw`text-sm font-medium text-gray-800`}>
+                        Total: ₹
+                        {(item.quantity * item.price_per_unit).toFixed(2)}
+                      </Text>
+                    </View>
                     {item.specification && (
-                      <Text style={tw`text-xs text-gray-500 mt-1`} numberOfLines={2}>
+                      <Text
+                        style={tw`text-xs text-gray-500 mt-1`}
+                        numberOfLines={2}
+                      >
                         {item.specification}
                       </Text>
                     )}
                   </View>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => handleDeleteItem(index)}
                     style={tw`ml-2 p-1`}
                   >
@@ -385,20 +540,21 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
                   </TouchableOpacity>
                 </View>
               ))}
+
+              {/* Total Amount */}
+              <View style={tw`border-t pt-2 mt-2`}>
+                <Text style={tw`text-lg font-bold text-right`}>
+                  Grand Total: ₹
+                  {items
+                    .reduce(
+                      (sum, item) => sum + item.quantity * item.price_per_unit,
+                      0,
+                    )
+                    .toFixed(2)}
+                </Text>
+              </View>
             </View>
           )}
-
-          <Text style={tw`text-sm mb-1`}>Vendor Name</Text>
-          <SearchableDropdown
-            data={(vendorData?.item || []).map(v => ({
-              id: v.id,
-              label: v.data[0],
-            }))}
-            selectedValue={vendor ? { label: vendor } : null}
-            onSelect={item => setVendor(item.label)}
-            placeholder="Search Vendor"
-            containerStyle="mb-4"
-          />
 
           <Text style={tw`text-sm mb-1`}>Description</Text>
           <TextInput
@@ -409,7 +565,11 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             onChangeText={setDescription}
           />
 
-          <Button fullWidth onClick={handleSubmit}>
+          <Button
+            fullWidth
+            onClick={handleSubmit}
+            disabled={!vendorName.trim() || !purchaseDate || items.length === 0}
+          >
             Submit Purchase Order
           </Button>
         </ScrollView>
