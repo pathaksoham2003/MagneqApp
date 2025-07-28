@@ -1,42 +1,79 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TextInput,
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useTheme from '../../hooks/useTheme';
-
-const orderData = [
-  {
-    id: 'SO-123',
-    date: '22/6/2025',
-    customer: 'Mohan Kumar',
-    model: '102',
-    type: 'Flange',
-    ratio: '18',
-    qty: '1',
-    status: 'Delivered',
-  },
-];
+import useSales from '../../services/useSales';
 
 const TrackOrder = () => {
   const { tw } = useTheme();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { getAllSales } = useSales();
 
-  const filteredData = orderData.filter(order =>
-    order.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [orderData, setOrderData] = useState({ header: [], item: [] });
+  const [loading, setLoading] = useState(false);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllSales(1, searchQuery);
+      setOrderData({
+        header: response?.header || [],
+        item: response?.item || [],
+      });
+    } catch (error) {
+      console.error('Error fetching sales:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, [searchQuery]);
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'UN_APPROVED':
+        return tw`bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400`;
+      case 'INPROCESS':
+        return tw`bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400`;
+      case 'PROCESSED':
+      case 'DELIVERED':
+        return tw`bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400`;
+      case 'DISPATCHED':
+        return tw`bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400`;
+      case 'CANCELLED':
+        return tw`bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300`;
+      default:
+        return tw`bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400`;
+    }
+  };
+
+  const formatCell = (cell, index) => {
+    if (index === 1 && typeof cell === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(cell)) {
+      return new Date(cell).toLocaleDateString();
+    }
+
+    if (Array.isArray(cell)) {
+      return cell.join(' | ');
+    }
+
+    return cell ?? '—';
+  };
 
   return (
     <ScrollView style={tw`flex-1 bg-white dark:bg-black px-4 py-6 mt-8`}>
-      {/* Title */}
       <Text style={tw`text-2xl font-bold text-gray-800 dark:text-white mb-4`}>
         Track Order
       </Text>
 
-      {/* Search Bar with Icon */}
       <View style={tw`flex-row items-center border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 mb-4`}>
         <Ionicons name="search-outline" size={20} color="#9CA3AF" />
         <TextInput
@@ -48,43 +85,52 @@ const TrackOrder = () => {
         />
       </View>
 
-      {/* Bordered Container with horizontal ScrollView */}
-      <View style={tw`border border-gray-300 dark:border-gray-700 rounded-xl overflow-hidden`}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-          <View style={tw`min-w-[950px]`}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#2563EB" style={tw`mt-6`} />
+      ) : (
+        <View style={tw`border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden`}>
+          <ScrollView horizontal showsHorizontalScrollIndicator>
+            <View style={tw`min-w-[700px]`}>
+              {/* Table Header */}
+              <View style={tw`flex-row px-4 py-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700`}>
+                {orderData.header.map((col, idx) => (
+                  <View key={idx} style={tw`min-w-[140px]`}>
+                    <Text style={tw`font-semibold text-gray-600 dark:text-gray-300`}>
+                      {col}
+                    </Text>
+                  </View>
+                ))}
+              </View>
 
-            {/* Header Row */}
-            <View style={tw`flex-row border-b border-gray-200 dark:border-gray-700 px-4 py-3 bg-gray-100 dark:bg-gray-800`}>
-              {['Order ID', 'Date of Creation', 'Customer Name', 'Model', 'Type', 'Ratio', 'Qty', 'Status'].map((header, index) => (
-                <View key={index} style={tw`min-w-[120px]`}>
-                  <Text style={tw`font-semibold text-gray-600 dark:text-gray-300`}>
-                    {header}
-                  </Text>
-                </View>
+              {/* Table Rows */}
+              {orderData.item.map((row, index) => (
+                <TouchableOpacity
+                  key={row.id || index}
+                  style={tw`flex-row px-4 py-3 border-t border-gray-100 dark:border-gray-800`}
+                  activeOpacity={0.8}
+                  onPress={() => {}}
+                >
+                  {row.data.map((cell, cellIdx) => (
+                    <View key={cellIdx} style={tw`min-w-[140px]`}>
+                      <Text style={tw`text-gray-800 dark:text-white`}>
+                        {cellIdx === 4 ? (
+                          <Text
+                            style={[tw`px-2 py-1 rounded-full text-center text-xs`, getStatusStyle(cell)]}
+                          >
+                            {cell?.replace(/_/g, ' ') ?? '—'}
+                          </Text>
+                        ) : (
+                          formatCell(cell, cellIdx)
+                        )}
+                      </Text>
+                    </View>
+                  ))}
+                </TouchableOpacity>
               ))}
             </View>
-
-            {/* Data Rows */}
-            {filteredData.map((order, index) => (
-              <View key={index} style={tw`flex-row px-4 py-3 border-t border-gray-100 dark:border-gray-800`}>
-                <View style={tw`min-w-[120px]`}><Text style={tw`text-gray-800 dark:text-white`}>{order.id}</Text></View>
-                <View style={tw`min-w-[120px]`}><Text style={tw`text-gray-800 dark:text-white`}>{order.date}</Text></View>
-                <View style={tw`min-w-[120px]`}><Text style={tw`text-gray-800 dark:text-white`}>{order.customer}</Text></View>
-                <View style={tw`min-w-[120px]`}><Text style={tw`text-gray-800 dark:text-white`}>{order.model}</Text></View>
-                <View style={tw`min-w-[120px]`}><Text style={tw`text-gray-800 dark:text-white`}>{order.type}</Text></View>
-                <View style={tw`min-w-[120px]`}><Text style={tw`text-gray-800 dark:text-white`}>{order.ratio}</Text></View>
-                <View style={tw`min-w-[120px]`}><Text style={tw`font-bold text-gray-800 dark:text-white`}>{order.qty}</Text></View>
-                <View style={tw`min-w-[120px]`}>
-                  <Text style={tw`text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-400 px-2 py-1 rounded-full text-center`}>
-                    {order.status}
-                  </Text>
-                </View>
-              </View>
-            ))}
-
-          </View>
-        </ScrollView>
-      </View>
+          </ScrollView>
+        </View>
+      )}
     </ScrollView>
   );
 };
