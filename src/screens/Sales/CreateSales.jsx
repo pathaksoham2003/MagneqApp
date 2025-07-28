@@ -16,6 +16,7 @@ import OrderItemsForm from './OrderItemForm';
 import useDebounce from '../../hooks/useDebounce';
 import useManage from '../../services/useManage';
 import SearchableDropdown from '../../components/common/SearchableDropdown';
+import SidebarLayout from '../../layout/SidebarLayout';
 
 const CreateSales = ({ navigation }) => {
   const { tw } = useTheme();
@@ -103,67 +104,69 @@ const CreateSales = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={tw`flex-1 p-4 bg-white`}>
-      <Text style={tw`text-2xl font-bold mb-4`}>Create Order</Text>
+    <SidebarLayout>
+      <ScrollView style={tw`flex-1 p-4 bg-white`}>
+        <Text style={tw`text-2xl font-bold mb-4`}>Create Order</Text>
 
-      <Text style={tw`text-sm mb-1`}>Customer Name</Text>
+        <Text style={tw`text-sm mb-1`}>Customer Name</Text>
 
-      <SearchableDropdown
-        data={(data?.item || []).map(v => ({
-          id: v.id,
-          label: v.data[0], // Vendor Name
-        }))}
-        selectedValue={customer ? { label: customer } : null}
-        onSelect={item => setCustomer(item.label)}
-        placeholder="Search Vendor"
-        containerStyle="mb-4"
-      />
+        <SearchableDropdown
+          data={(data?.item || []).map(v => ({
+            id: v.id,
+            label: v.data[0], // Vendor Name
+          }))}
+          selectedValue={customer ? { label: customer } : null}
+          onSelect={item => setCustomer(item.label)}
+          placeholder="Search Vendor"
+          containerStyle="mb-4"
+        />
 
-      {/* Description */}
-      <Text style={tw`mb-1`}>Order Description</Text>
-      <TextInput
-        multiline
-        numberOfLines={3}
-        style={tw`border border-gray-300 rounded p-2 mb-4`}
-        placeholder="Enter order description"
-        value={description}
-        onChangeText={setDescription}
-      />
+        {/* Description */}
+        <Text style={tw`mb-1`}>Order Description</Text>
+        <TextInput
+          multiline
+          numberOfLines={3}
+          style={tw`border border-gray-300 rounded p-2 mb-4`}
+          placeholder="Enter order description"
+          value={description}
+          onChangeText={setDescription}
+        />
 
-      {/* Order Items Form */}
-      <OrderItemsForm
-        items={items}
-        setItems={setItems}
-        model={model}
-        setModel={setModel}
-        type={type}
-        setType={setType}
-        ratio={ratio}
-        setRatio={setRatio}
-        power={power}
-        setPower={setPower}
-        quantity={quantity}
-        setQuantity={setQuantity}
-      />
+        {/* Order Items Form */}
+        <OrderItemsForm
+          items={items}
+          setItems={setItems}
+          model={model}
+          setModel={setModel}
+          type={type}
+          setType={setType}
+          ratio={ratio}
+          setRatio={setRatio}
+          power={power}
+          setPower={setPower}
+          quantity={quantity}
+          setQuantity={setQuantity}
+        />
 
-      {/* Submit Button */}
-      <TouchableOpacity
-        onPress={handleSubmit}
-        disabled={mutation.isLoading || items.length === 0}
-        style={tw.style(
-          'p-4 rounded mt-6',
-          mutation.isLoading || items.length === 0
-            ? 'bg-gray-400'
-            : 'bg-blue-600',
-        )}
-      >
-        {mutation.isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={tw`text-white text-center text-lg`}>Submit Order</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Submit Button */}
+        <TouchableOpacity
+          onPress={handleSubmit}
+          disabled={mutation.isLoading || items.length === 0}
+          style={tw.style(
+            'p-4 rounded mt-6',
+            mutation.isLoading || items.length === 0
+              ? 'bg-gray-400'
+              : 'bg-blue-600',
+          )}
+        >
+          {mutation.isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={tw`text-white text-center text-lg`}>Submit Order</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </SidebarLayout>
   );
 };
 

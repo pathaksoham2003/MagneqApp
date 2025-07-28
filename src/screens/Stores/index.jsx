@@ -116,8 +116,7 @@ const Stores = () => {
             </Text>
           ) : (
             (() => {
-              const keysToShow = ['name', 'type', 'quantity'];
-
+              const keysToShow = ['product name', 'type', 'quantity'];
               const lowerHeaders = headers.map(h => h.toLowerCase());
               const indexesToKeep = keysToShow
                 .map(key => lowerHeaders.indexOf(key))
@@ -129,11 +128,9 @@ const Stores = () => {
                   let cell = row.data[i];
                   if (
                     headers[i].toLowerCase() === 'quantity' &&
-                    cell !== null &&
-                    typeof cell === 'object' &&
-                    'processed' in cell
+                    cell !== null && !cell.includes("unprocessed")
                   ) {
-                    return cell.processed;
+                    return cell.replace("processed: ","");
                   }
                   return cell;
                 });
