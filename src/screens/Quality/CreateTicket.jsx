@@ -14,6 +14,7 @@ import Button from '../../components/common/Button';
 import SuccessModel from '../../components/common/SuccessModel';  // your reusable modal
 import Icon from 'react-native-vector-icons/Ionicons';
 import useTheme from '../../hooks/useTheme';
+import SidebarLayout from '../../layout/SidebarLayout';
 
 const CreateTicket = () => {
   const { tw } = useTheme();
@@ -37,7 +38,7 @@ const CreateTicket = () => {
   };
 
   return (
-    <>
+    <SidebarLayout>
       <ScrollView style={tw`px-4 py-4 bg-white mt-10`}>
       <View style={tw`flex-row justify-between items-center mb-4`}>
           <Text style={tw`text-xl font-bold text-gray-900`}>Quality Concerns</Text>
@@ -135,7 +136,7 @@ const CreateTicket = () => {
         }}
         message="Congratulations, Quality Ticket created Successfully"
       />
-    </>
+    </SidebarLayout>
   );
 };
 

@@ -45,9 +45,13 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
         type: materialType,
         name: materialName,
       }),
-    enabled: !!materialClass,
+    enabled: !!materialClass && (
+      (materialClass === 'A' && !!materialName) ||
+      (materialClass === 'B' && !!materialType) ||
+      (materialClass === 'C' && !!materialName && !!materialType)
+    ),
   });
-console.log(filteredData)
+
   const { data: vendorData } = useQuery({
     queryKey: ['vendors', debouncedSearch],
     queryFn: () => getAllVendors({ limit: 20, search: debouncedSearch }),
@@ -75,7 +79,52 @@ console.log(filteredData)
       ? filterConfig[materialClass].names
       : [];
 
-  const filterItems = filteredData?.data?.map(item => item.name) || [];
+  // Debug: Log the filtered data to see the structure
+  useEffect(() => {
+    console.log('Filtered Data:', filteredData);
+  }, [filteredData]);
+
+  // Handle different possible response structures
+  const getRawMaterialsArray = () => {
+    if (!filteredData) return [];
+    
+    // Try different possible structures
+    if (Array.isArray(filteredData)) {
+      return filteredData;
+    }
+    if (filteredData.data && Array.isArray(filteredData.data)) {
+      return filteredData.data;
+    }
+    if (filteredData.items && Array.isArray(filteredData.items)) {
+      return filteredData.items;
+    }
+    
+    return [];
+  };
+
+  // Update to display material by name + type + specification
+  const filterItems = getRawMaterialsArray().map(
+    item => ({
+      id: item._id,
+      label: `${item.name} - ${item.type}`,
+      fullItem: item
+    })
+  );
+
+  // Check if we should show the filtered materials dropdown
+  const shouldShowFilteredDropdown = () => {
+    if (!materialClass) return false;
+    
+    if (materialClass === 'A') {
+      return !!materialName;
+    } else if (materialClass === 'B') {
+      return !!materialType;
+    } else if (materialClass === 'C') {
+      return !!materialName && !!materialType;
+    }
+    
+    return false;
+  };
 
   const handleAddItem = () => {
     if (
@@ -86,21 +135,23 @@ console.log(filteredData)
     )
       return;
 
-    const selectedData = filteredData?.data?.find(
-      rm => rm.name === selectedRawMaterial,
+    const selectedData = getRawMaterialsArray().find(
+      rm => rm._id === selectedRawMaterial.id
     );
 
     const newItem = {
+      id: selectedData._id,
       class: materialClass,
-      type: materialType || null,
-      name: materialName || null,
-      material: selectedRawMaterial,
+      type: materialType || selectedData.type,
+      name: materialName || selectedData.name,
+      material: selectedRawMaterial.label,
       quantity,
       specification: selectedData?.other_specification?.value || '',
     };
 
     setItems([...items, newItem]);
 
+    // Reset form
     setMaterialClass('');
     setMaterialType('');
     setMaterialName('');
@@ -130,7 +181,6 @@ console.log(filteredData)
       <View style={tw`bg-white w-full rounded-2xl p-4`}>
         <Text style={tw`text-lg font-bold mb-4`}>Create Purchase Order</Text>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Class Dropdown */}
           <Dropdown
             label="Class"
             data={classOptions}
@@ -143,7 +193,6 @@ console.log(filteredData)
             }}
           />
 
-          {/* Conditionally render dropdowns based on class */}
           {materialClass === 'A' && nameOptions.length > 0 && (
             <Dropdown
               label="Name"
@@ -152,7 +201,6 @@ console.log(filteredData)
               setValue={val => {
                 setMaterialName(val);
                 setSelectedRawMaterial('');
-                refetchFilteredMaterials();
               }}
             />
           )}
@@ -165,7 +213,6 @@ console.log(filteredData)
               setValue={val => {
                 setMaterialType(val);
                 setSelectedRawMaterial('');
-                refetchFilteredMaterials();
               }}
             />
           )}
@@ -178,20 +225,55 @@ console.log(filteredData)
               setValue={val => {
                 setMaterialName(val);
                 setSelectedRawMaterial('');
-                refetchFilteredMaterials();
               }}
             />
           )}
 
-          {/* Filtered raw materials */}
-          <Dropdown
-            label="Filtered Raw Material"
-            data={filterItems}
-            value={selectedRawMaterial}
-            setValue={setSelectedRawMaterial}
-          />
+          {materialClass === 'C' && typeOptions.length > 0 && (
+            <Dropdown
+              label="Type"
+              data={typeOptions}
+              value={materialType}
+              setValue={val => {
+                setMaterialType(val);
+                setSelectedRawMaterial('');
+              }}
+            />
+          )}
 
-          {/* Quantity Input */}
+          {/* Show filtered raw materials dropdown only when conditions are met */}
+          {shouldShowFilteredDropdown() && filterItems.length > 0 && (
+            <View style={tw`mb-3`}>
+              <Text style={tw`text-sm mb-1`}>Select Raw Material</Text>
+              <SearchableDropdown
+                data={filterItems}
+                selectedValue={selectedRawMaterial}
+                onSelect={setSelectedRawMaterial}
+                placeholder="Search and select raw material"
+                containerStyle="mb-2"
+              />
+              
+              {/* Show specification if a material is selected */}
+              {selectedRawMaterial && selectedRawMaterial.fullItem?.other_specification?.value && (
+                <Text style={tw`text-xs text-gray-600 mb-2 p-2 bg-gray-50 rounded`}>
+                  Specification: {selectedRawMaterial.fullItem.other_specification.value}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {shouldShowFilteredDropdown() && filterItems.length === 0 && filteredData && (
+            <Text style={tw`text-sm text-gray-500 mb-3`}>
+              No raw materials found for the selected criteria
+              {/* Debug info - remove this in production */}
+              {__DEV__ && (
+                <Text style={tw`text-xs text-red-500 mt-1`}>
+                  Debug: filteredData structure: {JSON.stringify(filteredData, null, 2)}
+                </Text>
+              )}
+            </Text>
+          )}
+
           <Text style={tw`text-sm mb-1`}>Quantity</Text>
           <TextInput
             style={tw`border rounded-md px-3 py-2 mb-2`}
@@ -201,25 +283,22 @@ console.log(filteredData)
             onChangeText={setQuantity}
           />
 
-          {/* Add More Items */}
           <TouchableOpacity onPress={handleAddItem} style={tw`mb-4`}>
             <Text style={tw`text-blue-600 text-sm`}>+ Add more Items</Text>
           </TouchableOpacity>
 
-          {/* Display Items */}
           {items.map((item, index) => (
             <View
               key={index}
               style={tw`flex-row justify-between items-center border rounded-md p-2 mb-2 bg-gray-100`}
             >
-              <View>
-                <Text style={tw`text-sm`}>
-                  {item.class} {item.type ? `- ${item.type}` : ''}{' '}
-                  {item.name ? `- ${item.name}` : ''} - {item.material}
+              <View style={tw`flex-1`}>
+                <Text style={tw`text-sm font-medium`}>
+                  {item.class} - {item.material}
                 </Text>
-                <Text style={tw`text-sm`}>Qty: {item.quantity}</Text>
+                <Text style={tw`text-sm text-gray-600`}>Qty: {item.quantity}</Text>
                 {item.specification && (
-                  <Text style={tw`text-xs text-gray-500`}>
+                  <Text style={tw`text-xs text-gray-500 mt-1`}>
                     {item.specification}
                   </Text>
                 )}
@@ -230,7 +309,6 @@ console.log(filteredData)
             </View>
           ))}
 
-          {/* Vendor Dropdown */}
           <Text style={tw`text-sm mb-1`}>Vendor Name</Text>
           <SearchableDropdown
             data={(vendorData?.item || []).map(v => ({
@@ -243,7 +321,6 @@ console.log(filteredData)
             containerStyle="mb-4"
           />
 
-          {/* Description */}
           <Text style={tw`text-sm mb-1`}>Description</Text>
           <TextInput
             multiline
@@ -253,7 +330,6 @@ console.log(filteredData)
             onChangeText={setDescription}
           />
 
-          {/* Submit Button */}
           <Button fullWidth onClick={handleSubmit}>
             Submit Purchase Order
           </Button>

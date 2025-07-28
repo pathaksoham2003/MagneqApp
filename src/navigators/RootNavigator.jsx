@@ -53,7 +53,7 @@ const RootNavigator = () => {
           <Stack.Screen name="CreatePurchase" component={CreatePurchase} />
           <Stack.Screen name="Quality" component={Quality} />
           <Stack.Screen name="CreateQuality" component={CreateQuality} />
-          <Stack.Screen name="Stores" component={Stores} />
+          <Stack.Screen name="Store" component={Stores} />
           <Stack.Screen name="AddStock" component={AddStock} />
           <Stack.Screen name="Purchase" component={Purchase} />
           <Stack.Screen name="PurchaseDetail" component={PurchaseDetail} />
