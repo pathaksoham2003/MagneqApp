@@ -17,6 +17,7 @@ import TicketDetails from '../screens/Quality/TicketDetails';
 import RawMaterialDetail from '../screens/Stores/RawMaterialDetail';
 import AddStock from '../screens/Stores/AddStock';
 import PurchaseDetail from '../screens/Purchase/PurchaseDetail';
+import TrackOrder from "../screens/TrackOrder/TrackOrder"
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +60,7 @@ const RootNavigator = () => {
           <Stack.Screen name="PurchaseDetail" component={PurchaseDetail} />
           <Stack.Screen name="CreateTicket" component={CreateTicket} />
           <Stack.Screen name="TicketDetails" component={TicketDetails} />
+          <Stack.Screen name="TrackSales" component={TrackOrder} />
 
           <Stack.Screen
             name="RawMaterialDetail"
