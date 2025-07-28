@@ -42,7 +42,7 @@ const SearchableDropdown = ({
       {/* Selected Box */}
       <TouchableOpacity
         onPress={() => setOpen((prev) => !prev)}
-        style={tw`border border-gray-300 rounded-md bg-white px-3 py-2`}
+        style={tw`-z-30 border border-gray-300 rounded-md bg-white px-3 py-2`}
         activeOpacity={0.8}
       >
         <Text style={tw`text-sm text-gray-800`}>

@@ -42,14 +42,11 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     queryFn: () =>
       getFilteredRawMaterials({
         class_type: materialClass,
-        type: materialType,
-        name: materialName,
+        type: materialType || null,
+        name: materialName || null,
       }),
-    enabled: !!materialClass && (
-      (materialClass === 'A' && !!materialName) ||
-      (materialClass === 'B' && !!materialType) ||
-      (materialClass === 'C' && !!materialName && !!materialType)
-    ),
+    // Enable for all classes - let the backend handle the filtering logic
+    enabled: !!materialClass,
   });
 
   const { data: vendorData } = useQuery({
@@ -62,6 +59,8 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     queryKey: ['rawMaterialConfig'],
     queryFn: () => getRawMaterialFilterConfig(),
   });
+
+  console.log(configData)
 
   useEffect(() => {
     if (configData) {
@@ -84,21 +83,42 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     console.log('Filtered Data:', filteredData);
   }, [filteredData]);
 
-  // Handle different possible response structures
+  // Debug: Log the conditions for dropdown visibility
+  useEffect(() => {
+    console.log('Dropdown conditions:', {
+      materialClass,
+      materialType,
+      materialName,
+      shouldShow: shouldShowFilteredDropdown(),
+      filterItemsLength: filterItems.length,
+      filteredData: filteredData
+    });
+  }, [materialClass, materialType, materialName, filteredData]);
+
+  // Handle different possible response structures with better error handling
   const getRawMaterialsArray = () => {
-    if (!filteredData) return [];
+    console.log('Raw filteredData:', filteredData);
+    
+    if (!filteredData) {
+      console.log('No filteredData available');
+      return [];
+    }
     
     // Try different possible structures
     if (Array.isArray(filteredData)) {
+      console.log('filteredData is direct array, length:', filteredData.length);
       return filteredData;
     }
     if (filteredData.data && Array.isArray(filteredData.data)) {
+      console.log('filteredData.data is array, length:', filteredData.data.length);
       return filteredData.data;
     }
     if (filteredData.items && Array.isArray(filteredData.items)) {
+      console.log('filteredData.items is array, length:', filteredData.items.length);
       return filteredData.items;
     }
     
+    console.log('No valid array found in filteredData structure');
     return [];
   };
 
@@ -111,19 +131,10 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     })
   );
 
-  // Check if we should show the filtered materials dropdown
+  // Check if we should show the filtered materials dropdown - now shows for all classes
   const shouldShowFilteredDropdown = () => {
-    if (!materialClass) return false;
-    
-    if (materialClass === 'A') {
-      return !!materialName;
-    } else if (materialClass === 'B') {
-      return !!materialType;
-    } else if (materialClass === 'C') {
-      return !!materialName && !!materialType;
-    }
-    
-    return false;
+    // Show dropdown for all classes once a class is selected
+    return !!materialClass;
   };
 
   const handleAddItem = () => {
@@ -132,12 +143,25 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
       (!materialType && !materialName) ||
       !selectedRawMaterial ||
       !quantity
-    )
+    ) {
+      console.log('Validation failed:', {
+        materialClass,
+        materialType,
+        materialName,
+        selectedRawMaterial,
+        quantity
+      });
       return;
+    }
 
     const selectedData = getRawMaterialsArray().find(
       rm => rm._id === selectedRawMaterial.id
     );
+
+    if (!selectedData) {
+      console.log('Selected data not found');
+      return;
+    }
 
     const newItem = {
       id: selectedData._id,
@@ -151,12 +175,12 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
 
     setItems([...items, newItem]);
 
-    // Reset form
-    setMaterialClass('');
-    setMaterialType('');
-    setMaterialName('');
+    // Only reset the item-specific fields, keep class/type/name for easier multiple additions
     setSelectedRawMaterial('');
     setQuantity('');
+    
+    console.log('Item added successfully:', newItem);
+    console.log('Updated items list:', [...items, newItem]);
   };
 
   const handleDeleteItem = index => {
@@ -175,6 +199,8 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
     console.log('Submit Payload:', payload);
     if (onSuccess) onSuccess();
   };
+
+  
 
   return (
     <SidebarLayout>
@@ -225,6 +251,10 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
               setValue={val => {
                 setMaterialName(val);
                 setSelectedRawMaterial('');
+                // Trigger refetch when both name and type are selected for Class C
+                if (materialType && val) {
+                  console.log('Refetching for Class C with name:', val, 'and type:', materialType);
+                }
               }}
             />
           )}
@@ -237,41 +267,63 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
               setValue={val => {
                 setMaterialType(val);
                 setSelectedRawMaterial('');
+                // Trigger refetch when both name and type are selected for Class C
+                if (materialName && val) {
+                  console.log('Refetching for Class C with type:', val, 'and name:', materialName);
+                }
               }}
             />
           )}
 
-          {/* Show filtered raw materials dropdown only when conditions are met */}
-          {shouldShowFilteredDropdown() && filterItems.length > 0 && (
+          {/* Show filtered raw materials dropdown for all classes */}
+          {shouldShowFilteredDropdown() && (
             <View style={tw`mb-3`}>
               <Text style={tw`text-sm mb-1`}>Select Raw Material</Text>
-              <SearchableDropdown
-                data={filterItems}
-                selectedValue={selectedRawMaterial}
-                onSelect={setSelectedRawMaterial}
-                placeholder="Search and select raw material"
-                containerStyle="mb-2"
-              />
               
-              {/* Show specification if a material is selected */}
-              {selectedRawMaterial && selectedRawMaterial.fullItem?.other_specification?.value && (
-                <Text style={tw`text-xs text-gray-600 mb-2 p-2 bg-gray-50 rounded`}>
-                  Specification: {selectedRawMaterial.fullItem.other_specification.value}
-                </Text>
+              {filterItems.length > 0 ? (
+                <>
+                  <SearchableDropdown
+                    data={filterItems}
+                    selectedValue={selectedRawMaterial}
+                    onSelect={(item) => {
+                      console.log('Selected raw material:', item);
+                      setSelectedRawMaterial(item);
+                    }}
+                    placeholder="Search and select raw material"
+                    displayKey="label"
+                    containerStyle="mb-2"
+                  />
+                  
+                  {/* Show specification if a material is selected */}
+                  {selectedRawMaterial && selectedRawMaterial.fullItem?.other_specification?.value && (
+                    <Text style={tw`text-xs text-gray-600 mb-2 p-2 bg-gray-50 rounded`}>
+                      Specification: {selectedRawMaterial.fullItem.other_specification.value}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <View style={tw`border rounded-md px-3 py-2 mb-2 bg-gray-50`}>
+                  <Text style={tw`text-sm text-gray-500`}>
+                    {!filteredData 
+                      ? 'Loading raw materials...' 
+                      : materialClass === 'A' && !materialName
+                        ? 'Please select a Name to see raw materials'
+                        : materialClass === 'B' && !materialType
+                          ? 'Please select a Type to see raw materials'
+                          : materialClass === 'C' && (!materialName || !materialType)
+                            ? 'Please select both Name and Type to see raw materials'
+                            : 'No raw materials found for the selected criteria'
+                    }
+                  </Text>
+                  {/* Debug info - remove this in production */}
+                  {__DEV__ && filteredData && (
+                    <Text style={tw`text-xs text-red-500 mt-1`}>
+                      Debug: filteredData structure: {JSON.stringify(filteredData, null, 2)}
+                    </Text>
+                  )}
+                </View>
               )}
             </View>
-          )}
-
-          {shouldShowFilteredDropdown() && filterItems.length === 0 && filteredData && (
-            <Text style={tw`text-sm text-gray-500 mb-3`}>
-              No raw materials found for the selected criteria
-              {/* Debug info - remove this in production */}
-              {__DEV__ && (
-                <Text style={tw`text-xs text-red-500 mt-1`}>
-                  Debug: filteredData structure: {JSON.stringify(filteredData, null, 2)}
-                </Text>
-              )}
-            </Text>
           )}
 
           <Text style={tw`text-sm mb-1`}>Quantity</Text>
@@ -283,31 +335,58 @@ const CreatePurchase = ({ visible, onClose, onSuccess }) => {
             onChangeText={setQuantity}
           />
 
-          <TouchableOpacity onPress={handleAddItem} style={tw`mb-4`}>
-            <Text style={tw`text-blue-600 text-sm`}>+ Add more Items</Text>
+          <TouchableOpacity 
+            onPress={handleAddItem} 
+            style={tw`mb-4 ${
+              !materialClass || 
+              (!materialType && !materialName) || 
+              !selectedRawMaterial || 
+              !quantity 
+                ? 'opacity-50' 
+                : ''
+            }`}
+            disabled={
+              !materialClass || 
+              (!materialType && !materialName) || 
+              !selectedRawMaterial || 
+              !quantity
+            }
+          >
+            <Text style={tw`text-blue-600 text-sm font-medium`}>
+              + Add Item to Purchase Order
+            </Text>
           </TouchableOpacity>
 
-          {items.map((item, index) => (
-            <View
-              key={index}
-              style={tw`flex-row justify-between items-center border rounded-md p-2 mb-2 bg-gray-100`}
-            >
-              <View style={tw`flex-1`}>
-                <Text style={tw`text-sm font-medium`}>
-                  {item.class} - {item.material}
-                </Text>
-                <Text style={tw`text-sm text-gray-600`}>Qty: {item.quantity}</Text>
-                {item.specification && (
-                  <Text style={tw`text-xs text-gray-500 mt-1`}>
-                    {item.specification}
-                  </Text>
-                )}
-              </View>
-              <TouchableOpacity onPress={() => handleDeleteItem(index)}>
-                <Icon name="trash-outline" size={20} color="red" />
-              </TouchableOpacity>
+          {/* Added Items List */}
+          {items.length > 0 && (
+            <View style={tw`mb-4`}>
+              <Text style={tw`text-sm font-medium mb-2`}>Added Items ({items.length})</Text>
+              {items.map((item, index) => (
+                <View
+                  key={index}
+                  style={tw`flex-row justify-between items-center border rounded-md p-3 mb-2 bg-gray-50`}
+                >
+                  <View style={tw`flex-1`}>
+                    <Text style={tw`text-sm font-medium text-gray-800`}>
+                      {item.class} - {item.material}
+                    </Text>
+                    <Text style={tw`text-sm text-gray-600`}>Quantity: {item.quantity}</Text>
+                    {item.specification && (
+                      <Text style={tw`text-xs text-gray-500 mt-1`} numberOfLines={2}>
+                        {item.specification}
+                      </Text>
+                    )}
+                  </View>
+                  <TouchableOpacity 
+                    onPress={() => handleDeleteItem(index)}
+                    style={tw`ml-2 p-1`}
+                  >
+                    <Icon name="trash-outline" size={20} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              ))}
             </View>
-          ))}
+          )}
 
           <Text style={tw`text-sm mb-1`}>Vendor Name</Text>
           <SearchableDropdown
