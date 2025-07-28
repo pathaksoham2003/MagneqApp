@@ -1,7 +1,7 @@
 import { View, Text, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import SidebarLayout from '../../layout/SidebarLayout';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigation } from '@react-navigation/native';
 import usePurchase from '../../services/usePurchase';
 import Button from '../../components/common/Button';
 import DynamicTable from '../../components/common/DynamicTable';
@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import CreatePurchase from './CreatePurchase';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
 import SuccessModel from '../../components/common/SuccessModel';
+import SidebarLayout from '../../layout/SidebarLayout';
 
 const Purchase = () => {
   const { tw } = useTheme();
@@ -23,7 +24,12 @@ const Purchase = () => {
     queryFn: () => getAllPurchaseOrders(),
     staleTime: 5 * 60 * 1000,
   });
+  const navigation = useNavigation();
 
+  const handleRowClick = item => {
+    navigation.navigate('PurchaseDetail', { id: item.item_id });
+  };
+console.log(data)
   const purchaseData = {
     header: ['Vendor Name', 'Order Details', 'Status'],
     item:
@@ -59,7 +65,7 @@ const Purchase = () => {
         <View style={tw`gap-2 mb-3`}>
           <Button
             fullWidth
-            onPress={() => setShowCreateModal(true)}
+            onPress={() => navigation.navigate("CreatePurchase")}
             startIcon={<Icon name="cart-outline" size={18} color="#fff" />}
           >
             Purchase Goods
@@ -119,7 +125,7 @@ const Purchase = () => {
 
         {/* Table of Purchase Orders */}
         <Text style={tw`text-lg font-bold mb-2`}>Purchase Orders</Text>
-        <DynamicTable header={purchaseData.header} tableData={purchaseData} />
+        <DynamicTable onRowClick={handleRowClick} header={purchaseData.header} tableData={purchaseData} />
 
         {/* Show Purchase Order Details below table */}
         {showOrderDetails && <PurchaseOrderDetails />}

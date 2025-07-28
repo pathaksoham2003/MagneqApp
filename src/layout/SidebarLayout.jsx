@@ -9,10 +9,10 @@ import {
   Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { logoutUser } from '../reducer/authSlice';
+import { logoutUser, selectAuth } from '../reducer/authSlice';
 import { clearItem } from '../utils/localStorage';
 import MagneqIcon from '../assets/images/Logo_Icon.png';
 import { themeBackground, themeColorText } from '../utils/helper';
@@ -34,23 +34,17 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { tw } = useTheme();
+  const user = useSelector(selectAuth);
+
   const drawerAnim = useState(new Animated.Value(-SCREEN_WIDTH * 0.75))[0];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [active, setActive] = useState('Dashboard');
-
-  const [colorScheme, toggleColorScheme, setColorScheme] =
-    useAppColorScheme(tw);
-
+  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(tw);
   const [current, setCurrent] = useState('light');
 
   const toggleColor = () => {
-    if (current == 'light') {
-      setColorScheme('dark');
-      setCurrent('dark');
-    } else {
-      setColorScheme('light');
-      setCurrent('light')
-    }
+    setColorScheme(current === 'light' ? 'dark' : 'light');
+    setCurrent(current === 'light' ? 'dark' : 'light');
   };
 
   const openDrawer = () => {
@@ -86,27 +80,53 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
     onLogout();
   };
 
+  // 🔥 Dynamic menuItems based on role
+  const getMenuItems = () => {
+    if (user?.route?.role === 'ADMIN') {
+      return user.route.sidebar.map(label => {
+        const iconsMap = {
+          dashboard: 'grid-outline',
+          sales: 'file-tray-full-outline',
+          production: 'cube-outline',
+          store: 'storefront-outline',
+          purchase: 'document-outline',
+          quality: 'analytics-outline',
+        };
+
+        return {
+          label: label.charAt(0).toUpperCase() + label.slice(1),
+          icon: iconsMap[label.toLowerCase()] || 'apps-outline',
+        };
+      });
+    } else if (user?.route?.role === 'CUSTOMER') {
+      return [
+        { label: 'CreateSales', icon: 'add-circle-outline' },
+        { label: 'TrackSales', icon: 'locate-outline' },
+      ];
+    } else {
+      return [];
+    }
+  };
+
+  const menuItems = getMenuItems();
+
   return (
     <View style={tw`flex-1 ${themeColorText}`}>
       {/* Header */}
-      <View
-        style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}
-      >
+      <View style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}>
         <TouchableOpacity onPress={openDrawer}>
-          <Text style={tw`text-white text-3xl  ${themeColorText}`}>☰</Text>
+          <Text style={tw`text-white text-3xl ${themeColorText}`}>☰</Text>
         </TouchableOpacity>
         <View style={tw`flex flex-row`}>
           <Image source={MagneqIcon} />
-          <Text style={tw`text-white text-3xl ml-3  ${themeColorText}`}>
-            {title}
-          </Text>
+          <Text style={tw`text-white text-3xl ml-3 ${themeColorText}`}>{title}</Text>
         </View>
         <View style={tw`flex-row`}>
           <TouchableOpacity onPress={openDrawer}>
-            <Text style={tw`text-white text-3xl  ${themeColorText}`}>...</Text>
+            <Text style={tw`text-white text-3xl ${themeColorText}`}>...</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleColor}>
-            <Text style={tw`text-white text-3xl  ${themeColorText}`}> ...</Text>
+            <Text style={tw`text-white text-3xl ${themeColorText}`}> ...</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -116,10 +136,8 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
 
       {/* Backdrop */}
       {drawerOpen && (
-        <TouchableWithoutFeedback onPress={() => setDrawerOpen(false)}>
-          <View
-            style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`}
-          />
+        <TouchableWithoutFeedback onPress={closeDrawer}>
+          <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`} />
         </TouchableWithoutFeedback>
       )}
 
@@ -141,10 +159,9 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
           <Text style={tw`text-2xl font-bold ml-3`}>Magneq</Text>
         </View>
 
-        {/* Menu Header */}
         <Text style={tw`text-gray-400 mb-3`}>MENU</Text>
 
-        {/* Menu Items */}
+        {/* Render menuItems */}
         {menuItems.map(item => (
           <TouchableOpacity
             key={item.label}
@@ -180,12 +197,7 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
           onPress={handleLogout}
           style={tw`border border-gray-300 p-3 rounded-xl flex-row items-center justify-center`}
         >
-          <Ionicons
-            name="log-out-outline"
-            size={20}
-            color="#374151"
-            style={tw`mr-2`}
-          />
+          <Ionicons name="log-out-outline" size={20} color="#374151" style={tw`mr-2`} />
           <Text style={tw`text-lg font-medium`}>Logout</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -193,4 +205,4 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   );
 };
 
-export default SidebarLayout;
+export default SidebarLayout

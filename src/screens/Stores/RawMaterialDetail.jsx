@@ -297,7 +297,7 @@ useEffect(() => {
             </Text>
 
             <View
-              style={tw`border border-gray-300 rounded-lg bg-white p-4 flex-col md:flex-row items-center gap-4`}
+              style={tw`border border-gray-300 rounded-lg bg-white p-4 flex-row items-center gap-4`}
             >
               {/* From Stage */}
               <View style={tw`flex flex-col gap-1 mb-4`}>

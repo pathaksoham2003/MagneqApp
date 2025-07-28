@@ -62,7 +62,6 @@ const PurchaseOrderDetails = () => {
         <View style={tw`w-1/2`}>
           <Button
             fullWidth
-            onPress={() => setShowCreateModal(true)}
             startIcon={<Icon name="document-text-outline" size={18} color="#fff" />}
           >
             View Invoice
