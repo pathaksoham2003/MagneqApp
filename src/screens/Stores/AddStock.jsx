@@ -50,6 +50,7 @@ const AddStock = () => {
     mutationFn: stockData => addStockToPurchaseOrder(stockData),
     onSuccess: () => {
       queryClient.invalidateQueries(['rawMaterials']);
+      queryClient.invalidateQueries(['purchase']);
       queryClient.invalidateQueries([
         'POItems',
         selectedPO.po_number,
