@@ -34,9 +34,18 @@ const RootNavigator = () => {
               <Dashboard {...props} onLogout={() => setIsLoggedIn(false)} />
             )}
           </Stack.Screen>
-          <Stack.Screen name="Production" component={Production} />
           <Stack.Screen name="ViewProduction" component={ViewProduction} />
-          <Stack.Screen name="Sales" component={Sales} />
+          <Stack.Screen name="Sales">
+            {props => (
+              <Sales {...props} onLogout={() => setIsLoggedIn(false)} />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="Production">
+            {props => (
+              <Production {...props} onLogout={() => setIsLoggedIn(false)} />
+            )}
+          </Stack.Screen>
           <Stack.Screen name="ViewSales" component={ViewSales} />
           <Stack.Screen name="CreateSales" component={CreateSales} />
           <Stack.Screen name="CreatePurchase" component={CreatePurchase} />

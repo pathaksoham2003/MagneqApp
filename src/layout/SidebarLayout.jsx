@@ -83,11 +83,7 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const handleLogout = async () => {
     dispatch(logoutUser());
     clearItem();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    });
-    if (onLogout) onLogout();
+    onLogout();
   };
 
   return (

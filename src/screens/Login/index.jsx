@@ -5,18 +5,16 @@ import Label from '../../components/common/Label';
 import Select from '../../components/common/Select';
 import Checkbox from '../../components/common/Checkbox';
 import Button from '../../components/common/Button';
-import loginBG from '../../assets/images/loginPageBGImage.png';
-import logo from '../../assets/images/black_logo.png'; // updated
-import backgroundTexture from '../../assets/images/rectangle_4209.png'; // updated
+import logo from '../../assets/images/black_logo.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, selectAuth } from '../../reducer/authSlice';
 import useAuth from '../../services/useAuth';
 import { useMutation } from '@tanstack/react-query';
-import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'; // Optional in RN
-import { getItem, setItem } from '../../utils/localStorage';
+import { setItem } from '../../utils/localStorage';
 import useTheme from '../../hooks/useTheme';
+import Dropdown from '../../components/common/DropDown';
 
-const LoginScreen = ({ navigation, onLogin }) => {
+const Login = ({ navigation, onLogin }) => {
   const dispatch = useDispatch();
   const { tw } = useTheme();
   const { login } = useAuth();
@@ -25,7 +23,7 @@ const LoginScreen = ({ navigation, onLogin }) => {
   const [formData, setFormData] = useState({
     user_name: '',
     password: '',
-    role: 'ADMIN',
+    role: 'STAFF', // Can be STAFF or CUSTOMER
     active: false,
   });
 
@@ -44,11 +42,10 @@ const LoginScreen = ({ navigation, onLogin }) => {
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: data => {
-      if (data?.data?.token) {
-        dispatch(loginUser(data.data));
-        setItem('token', data.data.token);
-        // Use react-navigation or any route jump
+    onSuccess: ({data:data}) => {
+      if (data?.token) {
+        dispatch(loginUser(data));
+        setItem('token', data.token);
         onLogin();
       } else {
         console.error('Invalid credentials');
@@ -56,18 +53,18 @@ const LoginScreen = ({ navigation, onLogin }) => {
     },
     onError: err => {
       console.error('Login failed:', err?.response?.data || err.message);
-      console.log(err);
     },
   });
 
   const handleLogin = () => {
+    console.log(formData)
     mutation.mutate(formData);
   };
 
   return (
     <View style={tw`flex-1 bg-white`}>
       <ScrollView
-        contentContainerStyle={tw`flex-1 items-center justify-center px-6 py-12 bg-white`}
+        contentContainerStyle={tw`flex-1 items-center justify-center px-6 py-12`}
       >
         <View style={tw`w-full max-w-md bg-white p-6 rounded-2xl shadow-lg`}>
           <Image
@@ -76,7 +73,6 @@ const LoginScreen = ({ navigation, onLogin }) => {
             resizeMode="contain"
           />
 
-          {/* Username */}
           <Label>Username</Label>
           <Input
             value={formData.user_name}
@@ -84,7 +80,6 @@ const LoginScreen = ({ navigation, onLogin }) => {
             placeholder="John Doe"
           />
 
-          {/* Password */}
           <Label>Password</Label>
           <View style={tw`relative`}>
             <Input
@@ -103,19 +98,15 @@ const LoginScreen = ({ navigation, onLogin }) => {
             </TouchableOpacity>
           </View>
 
-          {/*
-          <Label>Role</Label>
-          <Select
-            value={formData.role}
-            onValueChange={val => handleChange('role', val)}
-            options={[
-              { label: 'Admin', value: 'ADMIN' },
-              { label: 'Sales Executive', value: 'EXECUTIVE' },
-              { label: 'Customer', value: 'CUSTOMER' },
-            ]}
-          /> */}
+          <Label>Login As</Label>
 
-          {/* Active */}
+          <Dropdown
+            label="Role"
+            data={['CUSTOMER', 'STAFF']}
+            value={formData.role}
+            setValue={val => handleChange('role', val)}
+            placeholder="Search Vendor"
+          />
           <View style={tw`flex-row items-center mt-2`}>
             <Checkbox
               value={formData.active}
@@ -124,20 +115,17 @@ const LoginScreen = ({ navigation, onLogin }) => {
             <Label style={tw`ml-2`}>Active</Label>
           </View>
 
-          {/* Submit */}
           <Button
             fullWidth
             title={mutation.isLoading ? 'Signing In...' : 'Sign In'}
             onPress={handleLogin}
             disabled={mutation.isLoading}
             style={tw`mt-5`}
-          >
-            Sign in
-          </Button>
+          />
         </View>
       </ScrollView>
     </View>
   );
 };
 
-export default LoginScreen;
+export default Login;

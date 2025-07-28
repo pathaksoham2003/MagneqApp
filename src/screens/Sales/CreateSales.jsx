@@ -1,5 +1,5 @@
 // CreateSales.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,16 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import useTheme from '../../hooks/useTheme';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useSales from '../../services/useSales';
 import OrderItemsForm from './OrderItemForm';
+import useDebounce from '../../hooks/useDebounce';
+import useManage from '../../services/useManage';
+import SearchableDropdown from '../../components/common/SearchableDropdown';
 
 const CreateSales = ({ navigation }) => {
-    const { tw } = useTheme();
-  
+  const { tw } = useTheme();
+
   const { createSale } = useSales(); // custom hook for API call
   const queryClient = useQueryClient();
 
@@ -45,6 +48,20 @@ const CreateSales = ({ navigation }) => {
     },
   });
 
+  const [page, setPage] = useState(0);
+  const { getAllCustomers } = useManage();
+
+  const [customer, setCustomer] = useState('');
+
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search.trim(), 150);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['customers', debouncedSearch],
+    queryFn: () => getAllCustomers({ limit: 20, search: debouncedSearch }),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const resetForm = () => {
     setRepName('');
     setCustomerName('');
@@ -62,14 +79,13 @@ const CreateSales = ({ navigation }) => {
       Alert.alert('No Items', 'Add at least one item before submitting.');
       return;
     }
-    if (!customerName.trim()) {
+    if (!customer.trim()) {
       Alert.alert('Missing Customer Name', 'Please enter customer name.');
       return;
     }
 
     const payload = {
-      customer_name: customerName,
-      magneq_user: repName,
+      customer_name: customer,
       description,
       delivery_date: new Date().toISOString().split('T')[0],
       // Assume you have user info from context or redux; use placeholder here
@@ -82,7 +98,7 @@ const CreateSales = ({ navigation }) => {
         quantity: item.quantity,
       })),
     };
-
+    console.log(payload);
     mutation.mutate(payload);
   };
 
@@ -90,22 +106,17 @@ const CreateSales = ({ navigation }) => {
     <ScrollView style={tw`flex-1 p-4 bg-white`}>
       <Text style={tw`text-2xl font-bold mb-4`}>Create Order</Text>
 
-      {/* Rep Name */}
-      <Text style={tw`mb-1`}>Representative Name</Text>
-      <TextInput
-        style={tw`border border-gray-300 rounded p-2 mb-4`}
-        placeholder="Enter representative name"
-        value={repName}
-        onChangeText={setRepName}
-      />
+      <Text style={tw`text-sm mb-1`}>Customer Name</Text>
 
-      {/* Customer Name */}
-      <Text style={tw`mb-1`}>Customer Name</Text>
-      <TextInput
-        style={tw`border border-gray-300 rounded p-2 mb-4`}
-        placeholder="Enter customer name"
-        value={customerName}
-        onChangeText={setCustomerName}
+      <SearchableDropdown
+        data={(data?.item || []).map(v => ({
+          id: v.id,
+          label: v.data[0], // Vendor Name
+        }))}
+        selectedValue={customer ? { label: customer } : null}
+        onSelect={item => setCustomer(item.label)}
+        placeholder="Search Vendor"
+        containerStyle="mb-4"
       />
 
       {/* Description */}
