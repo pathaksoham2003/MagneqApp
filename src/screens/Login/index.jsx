@@ -37,16 +37,49 @@ const Login = ({ navigation, onLogin }) => {
   const user = useSelector(selectAuth);
 
   useEffect(() => {
-    if (user?.token) onLogin();
+    if (user?.token) {
+      // Navigate based on user role when already logged in
+      navigateBasedOnRole(user.route?.role);
+    }
   }, []);
+
+  const navigateBasedOnRole = (userRole) => {
+    console.log("Navigating based on role:", userRole);
+    
+    switch (userRole?.toUpperCase()) {
+      case 'SALES':
+        onLogin('CreateSales');
+        break;
+      case 'CUSTOMER':
+        onLogin('Sales');
+        break;
+      case 'PRODUCTION':
+        onLogin('Production');
+        break;
+      case 'PURCHASE':
+        onLogin('Store');
+        break;
+      case 'ADMIN':
+        onLogin('Dashboard');
+        break;
+      default:
+        // Default to Dashboard if role is not recognized
+        console.log("Unknown role, defaulting to Dashboard");
+        onLogin('Dashboard');
+        break;
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: ({data:data}) => {
+    onSuccess: ({data: data}) => {
       if (data?.token) {
         dispatch(loginUser(data));
+        console.log("ROLE OF THE USER", data?.route?.role);
         setItem('token', data.token);
-        onLogin();
+        
+        // Navigate based on user role
+        navigateBasedOnRole(data?.route?.role);
       } else {
         console.error('Invalid credentials');
       }
@@ -57,7 +90,7 @@ const Login = ({ navigation, onLogin }) => {
   });
 
   const handleLogin = () => {
-    console.log(formData)
+    console.log(formData);
     mutation.mutate(formData);
   };
 

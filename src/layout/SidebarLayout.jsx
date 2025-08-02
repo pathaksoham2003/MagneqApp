@@ -36,10 +36,13 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const { tw } = useTheme();
   const user = useSelector(selectAuth);
 
+  console.log(user?.route?.role);
+
   const drawerAnim = useState(new Animated.Value(-SCREEN_WIDTH * 0.75))[0];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [active, setActive] = useState('Dashboard');
-  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(tw);
+  const [colorScheme, toggleColorScheme, setColorScheme] =
+    useAppColorScheme(tw);
   const [current, setCurrent] = useState('light');
 
   const toggleColor = () => {
@@ -80,7 +83,6 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
     onLogout();
   };
 
-  // 🔥 Dynamic menuItems based on role
   const getMenuItems = () => {
     if (user?.route?.role === 'ADMIN') {
       return user.route.sidebar.map(label => {
@@ -100,8 +102,27 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
       });
     } else if (user?.route?.role === 'CUSTOMER') {
       return [
-        { label: 'CreateSales', icon: 'add-circle-outline' },
+        { label: 'Sales', icon: 'add-circle-outline' },
         { label: 'TrackSales', icon: 'locate-outline' },
+        { label: 'Quality', icon: 'locate-outline' },
+      ];
+    } else if (user?.route?.role === 'SALES') {
+      return [
+        { label: 'CreateSales', icon: 'add-circle-outline' },
+        { label: 'Sales', icon: 'add-circle-outline' },
+        { label: 'TrackSales', icon: 'locate-outline' },
+        { label: 'Quality', icon: 'locate-outline' },
+      ];
+    } else if (user?.route?.role === 'PRODUCTION') {
+      return [
+        { label: 'Production', icon: 'add-circle-outline' },
+        { label: 'Quality', icon: 'locate-outline' },
+      ];
+    } else if (user?.route?.role === 'PURCHASE') {
+      return [
+        { label: 'Store', icon: 'add-circle-outline' },
+        { label: 'Purchase', icon: 'locate-outline' },
+        { label: 'Quality', icon: 'locate-outline' },
       ];
     } else {
       return [];
@@ -113,13 +134,17 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   return (
     <View style={tw`flex-1 ${themeColorText}`}>
       {/* Header */}
-      <View style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}>
+      <View
+        style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}
+      >
         <TouchableOpacity onPress={openDrawer}>
           <Text style={tw`text-white text-3xl ${themeColorText}`}>☰</Text>
         </TouchableOpacity>
         <View style={tw`flex flex-row`}>
           <Image source={MagneqIcon} />
-          <Text style={tw`text-white text-3xl ml-3 ${themeColorText}`}>{title}</Text>
+          <Text style={tw`text-white text-3xl ml-3 ${themeColorText}`}>
+            {title}
+          </Text>
         </View>
         <View style={tw`flex-row`}>
           <TouchableOpacity onPress={openDrawer}>
@@ -137,7 +162,9 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
       {/* Backdrop */}
       {drawerOpen && (
         <TouchableWithoutFeedback onPress={closeDrawer}>
-          <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`} />
+          <View
+            style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`}
+          />
         </TouchableWithoutFeedback>
       )}
 
@@ -197,7 +224,12 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
           onPress={handleLogout}
           style={tw`border border-gray-300 p-3 rounded-xl flex-row items-center justify-center`}
         >
-          <Ionicons name="log-out-outline" size={20} color="#374151" style={tw`mr-2`} />
+          <Ionicons
+            name="log-out-outline"
+            size={20}
+            color="#374151"
+            style={tw`mr-2`}
+          />
           <Text style={tw`text-lg font-medium`}>Logout</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -205,4 +237,4 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   );
 };
 
-export default SidebarLayout
+export default SidebarLayout;
