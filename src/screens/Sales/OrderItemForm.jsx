@@ -40,7 +40,7 @@ const OrderItemsForm = ({
     queryFn: async () => {
       const data = await getModalConfig();
       Object.keys(data).forEach(modelKey => {
-        data[modelKey].powers = data[modelKey].powers.map(Number);
+        data[modelKey].powers = data[modelKey].powers.map(item=>item);
         const ratios = data[modelKey].ratios;
         const normalizedRatios = {};
         Object.keys(ratios).forEach(powerKey => {
@@ -81,7 +81,7 @@ const OrderItemsForm = ({
         model,
         type,
         ratio,
-        power: parseFloat(power),
+        power: power,
         quantity: parseFloat(quantity),
       },
     ]);
@@ -124,7 +124,7 @@ const OrderItemsForm = ({
         />
         <Dropdown
           label="Type"
-          data={['B', 'V']}
+          data={['Base (Foot)', 'Vertical (Flange)']}
           value={type}
           setValue={setType}
         />

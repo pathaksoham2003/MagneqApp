@@ -36,12 +36,12 @@ const Login = ({ navigation, onLogin }) => {
 
   const user = useSelector(selectAuth);
 
-  useEffect(() => {
-    if (user?.token) {
-      // Navigate based on user role when already logged in
-      navigateBasedOnRole(user.route?.role);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (user?.token) {
+  //     // Navigate based on user role when already logged in
+  //     navigateBasedOnRole(user.route?.role);
+  //   }
+  // }, []);
 
   const navigateBasedOnRole = (userRole) => {
     console.log("Navigating based on role:", userRole);
