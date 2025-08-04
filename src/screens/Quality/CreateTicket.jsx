@@ -88,7 +88,7 @@ const CreateTicket = () => {
       if (modalTimeoutRef.current) clearTimeout(modalTimeoutRef.current);
       modalTimeoutRef.current = setTimeout(() => {
         setShowSuccess(false);
-        navigation.navigate('TicketDetails');
+        navigation.goBack('TicketDetails');
       }, 2000);
     },
     onError: (error) => {
