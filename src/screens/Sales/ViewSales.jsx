@@ -112,8 +112,7 @@ const ViewSales = ({ navigation }) => {
     try {
       // Prevent approval if any rate_per_unit is 0 or empty
       const hasZero = (editPrices || []).some(
-        item => !item.rate_per_unit || Number(item.rate_per_unit) === 0,
-      );
+        item => !item.rate_per_unit || Number(item.rate_per_unit) === 0 || Number(item.rate_per_unit) < item.base_price );
       if (hasZero) {
         Alert.alert(
           'Validation',
@@ -229,7 +228,11 @@ const ViewSales = ({ navigation }) => {
                     { minWidth: 60 },
                   ]}
                   keyboardType="numeric"
-                  value={item.rate_per_unit}
+                  placeholder={`${Number(item.base_price).toLocaleString('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    minimumFractionDigits: 2,
+                  })}`}
                   onChangeText={text => {
                     setEditPrices(prices =>
                       prices.map((r, i) =>
