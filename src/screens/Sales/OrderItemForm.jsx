@@ -65,7 +65,8 @@ const OrderItemsForm = ({
 
   useEffect(() => {
     const ratios = modelConfig?.[model]?.ratios?.[power];
-    setAvailableRatios(ratios || []);
+    const sortedRatios = ratios?.slice().sort((a, b) => a - b) || [];
+    setAvailableRatios(sortedRatios);
     setRatio('');
   }, [power]);
 
