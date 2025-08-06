@@ -75,10 +75,11 @@ const ViewSales = ({ navigation }) => {
   // Setup editable prices when data loads
   useEffect(() => {
     if (data && data.itemLevelData?.items) {
+      console.log(data.itemLevelData.items);
       setEditPrices(
         data.itemLevelData.items.map(item => ({
           ...item,
-          rate_per_unit: item.rate_per_unit?.toString() || '0',
+          rate_per_unit: item.rate_per_unit?.toString() || item.base_price?.toString() ||'0',
           fg_id: item.fg_id,
         })),
       );
@@ -112,8 +113,7 @@ const ViewSales = ({ navigation }) => {
     try {
       // Prevent approval if any rate_per_unit is 0 or empty
       const hasZero = (editPrices || []).some(
-        item => !item.rate_per_unit || Number(item.rate_per_unit) === 0,
-      );
+        item => !item.rate_per_unit || Number(item.rate_per_unit) === 0 || Number(item.rate_per_unit) < item.base_price );
       if (hasZero) {
         Alert.alert(
           'Validation',
@@ -229,7 +229,12 @@ const ViewSales = ({ navigation }) => {
                     { minWidth: 60 },
                   ]}
                   keyboardType="numeric"
-                  value={item.rate_per_unit}
+                  placeholder={`${Number(item.base_price).toLocaleString('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    minimumFractionDigits: 2,
+                  })}`}
+                  value={item.base_price.toString() || item.rate_per_unit.toString()}
                   onChangeText={text => {
                     setEditPrices(prices =>
                       prices.map((r, i) =>

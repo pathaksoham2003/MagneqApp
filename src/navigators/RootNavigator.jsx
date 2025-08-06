@@ -17,7 +17,8 @@ import TicketDetails from '../screens/Quality/TicketDetails';
 import RawMaterialDetail from '../screens/Stores/RawMaterialDetail';
 import AddStock from '../screens/Stores/AddStock';
 import PurchaseDetail from '../screens/Purchase/PurchaseDetail';
-import TrackOrder from "../screens/TrackOrder/TrackOrder"
+import TrackOrder from "../screens/TrackOrder/TrackOrder";
+import CreatePRO from '../screens/Production/CreatePRO';
 
 const Stack = createNativeStackNavigator();
 
@@ -79,6 +80,8 @@ const RootNavigator = () => {
             )}
           </Stack.Screen>
           <Stack.Screen name="ViewProduction" component={ViewProduction} />
+          <Stack.Screen name="CreatePRO" component={CreatePRO} />
+          
 
           {/* Store/Purchase Screens */}
           <Stack.Screen 

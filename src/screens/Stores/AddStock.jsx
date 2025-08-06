@@ -28,14 +28,14 @@ const AddStock = () => {
   const queryClient = useQueryClient();
 
   const {
-    getAllPurchaseOrders,
+    getPendingPurchaseOrders,
     getPurchaseOrderItems,
     addStockToPurchaseOrder,
   } = usePurchase();
 
   const { data: purchases } = useQuery({
-    queryKey: ['Purchases'],
-    queryFn: getAllPurchaseOrders,
+    queryKey: ['purchase'],
+    queryFn: getPendingPurchaseOrders(),
     staleTime: 5 * 60 * 1000,
   });
 

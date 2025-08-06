@@ -4,6 +4,10 @@ import {APIS} from "../api/apiUrls";
 const useProduction = () => {
   const api = useAxios();
 
+  const createProductionOrder = (data) => {
+    return api.post(`${APIS.production}/create_pro`,data);  
+  };
+
   const getPendingProductions = (page, search) => {
     return api.get(`${APIS.production}?page=${page}&search=${search}`);
   };
@@ -25,6 +29,7 @@ const useProduction = () => {
     getProductionById,
     startProductionById,
     markAsReady,
+    createProductionOrder,
   };
 };
 

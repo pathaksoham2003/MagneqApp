@@ -86,6 +86,12 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const getMenuItems = () => {
     if (user?.route?.role === 'ADMIN') {
       return user.route.sidebar.map(label => {
+        let label1
+        if(label==''){
+          label1 = 'Dashboard'
+        } else{
+          label1 = label
+        }
         const iconsMap = {
           dashboard: 'grid-outline',
           sales: 'file-tray-full-outline',
@@ -94,9 +100,8 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
           purchase: 'document-outline',
           quality: 'analytics-outline',
         };
-
         return {
-          label: label.charAt(0).toUpperCase() + label.slice(1),
+          label:label1.charAt(0).toUpperCase() + label1.slice(1),
           icon: iconsMap[label.toLowerCase()] || 'apps-outline',
         };
       });
