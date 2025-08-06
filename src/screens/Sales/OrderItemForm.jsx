@@ -75,6 +75,39 @@ const OrderItemsForm = ({
       return Alert.alert('Missing Fields', 'Fill all fields');
     }
 
+    const existingIndex = items.findIndex(
+      item =>
+        item.model === model &&
+        item.power === power &&
+        item.ratio === ratio &&
+        item.type === type
+    );
+
+    if (existingIndex !== -1) {
+      return Alert.alert(
+        'Duplicate Item',
+        'This item is already added. Do you want to increase the quantity?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes',
+            onPress: () => {
+              const updatedItems = [...items];
+              updatedItems[existingIndex].quantity += parseFloat(quantity);
+              setItems(updatedItems);
+              setModel('');
+              setType('');
+              setRatio('');
+              setPower('');
+              setQuantity('');
+            },
+          },
+        ]
+      );
+    }
     setItems(prev => [
       ...prev,
       {
@@ -86,7 +119,6 @@ const OrderItemsForm = ({
         quantity: parseFloat(quantity),
       },
     ]);
-
     setModel('');
     setType('');
     setRatio('');

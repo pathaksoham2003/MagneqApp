@@ -75,10 +75,11 @@ const ViewSales = ({ navigation }) => {
   // Setup editable prices when data loads
   useEffect(() => {
     if (data && data.itemLevelData?.items) {
+      console.log(data.itemLevelData.items);
       setEditPrices(
         data.itemLevelData.items.map(item => ({
           ...item,
-          rate_per_unit: item.rate_per_unit?.toString() || '0',
+          rate_per_unit: item.rate_per_unit?.toString() || item.base_price?.toString() ||'0',
           fg_id: item.fg_id,
         })),
       );
@@ -233,6 +234,7 @@ const ViewSales = ({ navigation }) => {
                     currency: 'INR',
                     minimumFractionDigits: 2,
                   })}`}
+                  value={item.base_price.toString() || item.rate_per_unit.toString()}
                   onChangeText={text => {
                     setEditPrices(prices =>
                       prices.map((r, i) =>

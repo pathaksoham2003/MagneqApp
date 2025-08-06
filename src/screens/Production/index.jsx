@@ -46,14 +46,13 @@ const Production = ({ onLogout }) => {
   return (
     <SidebarLayout onLogout={onLogout}>
       <View style={tw`px-4 pt-2`}>
-        {/* Success Message Card */}
         <View
           style={tw`bg-green-100 border border-green-300 px-4 py-3 rounded-xl mb-4`}
         >
-          <Text style={tw`text-green-800 font-semibold`}>
-            ✅ 2 orders created today
-          </Text>
           <Text style={tw`text-gray-700`}>moved in production</Text>
+        <Button onClick={() => navigate.navigate('CreatePRO')}>
+          Create Sale
+        </Button>
         </View>
 
         {/* Table */}
