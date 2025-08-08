@@ -72,6 +72,7 @@ console.log(data)
           </Button>
           <Button
             fullWidth
+            onPress={() => navigation.navigate("TrackVendors")}
             startIcon={<Icon name="clipboard-outline" size={18} color="#fff" />}
           >
             Track Purchase Goods
