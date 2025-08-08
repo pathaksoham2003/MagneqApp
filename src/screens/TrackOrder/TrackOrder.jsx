@@ -10,6 +10,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import useTheme from '../../hooks/useTheme';
 import useSales from '../../services/useSales';
+import SidebarLayout from '../../layout/SidebarLayout';
 
 const TrackOrder = () => {
   const { tw } = useTheme();
@@ -69,6 +70,7 @@ const TrackOrder = () => {
   };
 
   return (
+    <SidebarLayout>
     <ScrollView style={tw`flex-1 bg-white dark:bg-black px-4 py-6 mt-8`}>
       <Text style={tw`text-2xl font-bold text-gray-800 dark:text-white mb-4`}>
         Track Order
@@ -132,6 +134,7 @@ const TrackOrder = () => {
         </View>
       )}
     </ScrollView>
+    </SidebarLayout>
   );
 };
 

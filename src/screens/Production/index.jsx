@@ -46,17 +46,12 @@ const Production = ({ onLogout }) => {
   return (
     <SidebarLayout onLogout={onLogout}>
       <View style={tw`px-4 pt-2`}>
-        <View
-          style={tw`bg-green-100 border border-green-300 px-4 py-3 rounded-xl mb-4`}
-        >
-          <Text style={tw`text-gray-700`}>moved in production</Text>
-        <Button onClick={() => navigate.navigate('CreatePRO')}>
-          Create Sale
+        <Text style={tw`text-lg font-bold mb-2`}>Production Table</Text>
+        <Button style={tw`mb-2`} onClick={() => navigate.navigate('CreatePRO')}>
+          Create Production
         </Button>
-        </View>
 
         {/* Table */}
-        <Text style={tw`text-lg font-bold mb-2`}>Production Table</Text>
         <DynamicTable
           header={header}
           tableData={tableData}
