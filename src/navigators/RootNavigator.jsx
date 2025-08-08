@@ -30,7 +30,7 @@ import TicketDetails from '../screens/Quality/TicketDetails';
 import RawMaterialDetail from '../screens/Stores/RawMaterialDetail';
 import AddStock from '../screens/Stores/AddStock';
 import PurchaseDetail from '../screens/Purchase/PurchaseDetail';
-import TrackOrder from "../screens/TrackOrder/TrackOrder";
+import TrackOrder from '../screens/TrackOrder/TrackOrder';
 import CreatePRO from '../screens/Production/CreatePRO';
 import VendorPurchases from '../screens/Purchase/VendorPurchases';
 import TrackVendors from '../screens/Purchase/TrackVendors';
@@ -46,9 +46,15 @@ const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 // Custom Header Component
-const CustomHeader = ({ title = 'Magneq', navigation, canGoBack = false, onLogout }) => {
+const CustomHeader = ({
+  title = 'Magneq',
+  navigation,
+  canGoBack = false,
+  onLogout,
+}) => {
   const { tw } = useTheme();
-  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(tw);
+  const [colorScheme, toggleColorScheme, setColorScheme] =
+    useAppColorScheme(tw);
   const [current, setCurrent] = useState('light');
 
   const toggleColor = () => {
@@ -70,15 +76,13 @@ const CustomHeader = ({ title = 'Magneq', navigation, canGoBack = false, onLogou
 
   return (
     <SafeAreaView style={tw`${themeBackground}`}>
-      <View style={tw`flex-row items-center justify-between pt-2 pb-4 px-4 ${themeColorText}`}>
+      <View
+        style={tw`flex-row items-center justify-between pt-2 pb-4 px-4 ${themeColorText}`}
+      >
         {/* Left Icon - Menu or Back */}
         <TouchableOpacity onPress={canGoBack ? goBack : openDrawer}>
           {canGoBack ? (
-            <Ionicons 
-              name="arrow-back" 
-              size={28} 
-              color="white" 
-            />
+            <Ionicons name="arrow-back" size={28} color="white" />
           ) : (
             <Text style={tw`text-white text-3xl ${themeColorText}`}>☰</Text>
           )}
@@ -87,7 +91,9 @@ const CustomHeader = ({ title = 'Magneq', navigation, canGoBack = false, onLogou
         {/* Center - Logo and Title */}
         <View style={tw`flex flex-row items-center`}>
           <Image source={MagneqIcon} style={tw`w-8 h-8`} />
-          <Text style={tw`text-white text-2xl ml-3 ${themeColorText} font-semibold`}>
+          <Text
+            style={tw`text-white text-2xl ml-3 ${themeColorText} font-semibold`}
+          >
             {title}
           </Text>
         </View>
@@ -98,10 +104,10 @@ const CustomHeader = ({ title = 'Magneq', navigation, canGoBack = false, onLogou
             <Ionicons name="ellipsis-vertical" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleColor}>
-            <Ionicons 
-              name={current === 'light' ? 'moon-outline' : 'sunny-outline'} 
-              size={24} 
-              color="white" 
+            <Ionicons
+              name={current === 'light' ? 'moon-outline' : 'sunny-outline'}
+              size={24}
+              color="white"
             />
           </TouchableOpacity>
         </View>
@@ -123,7 +129,7 @@ const CustomSidebar = ({ navigation, onLogout }) => {
     onLogout();
   };
 
-  const navigateTo = (screen) => {
+  const navigateTo = screen => {
     setActive(screen);
     navigation.navigate(screen);
   };
@@ -142,7 +148,10 @@ const CustomSidebar = ({ navigation, onLogout }) => {
         };
 
         return {
-          label: label.charAt(0).toUpperCase() + label.slice(1),
+          label:
+            label == ''
+              ? 'Dashboard'
+              : label.charAt(0).toUpperCase() + label.slice(1),
           icon: iconsMap[label.toLowerCase()] || 'apps-outline',
         };
       });
@@ -277,11 +286,9 @@ const DrawerNavigator = ({ onLogout }) => {
           width: '75%',
         },
       })}
-      drawerContent={(props) => (
-        <CustomSidebar {...props} onLogout={onLogout} />
-      )}
+      drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
     >
-      <Drawer.Screen 
+      <Drawer.Screen
         name="Dashboard"
         options={{
           drawerLabel: 'Dashboard',
@@ -290,8 +297,8 @@ const DrawerNavigator = ({ onLogout }) => {
       >
         {props => <Dashboard {...props} onLogout={onLogout} />}
       </Drawer.Screen>
-      
-      <Drawer.Screen 
+
+      <Drawer.Screen
         name="Sales"
         options={{
           drawerLabel: 'Sales',
@@ -300,8 +307,8 @@ const DrawerNavigator = ({ onLogout }) => {
       >
         {props => <Sales {...props} onLogout={onLogout} />}
       </Drawer.Screen>
-      
-      <Drawer.Screen 
+
+      <Drawer.Screen
         name="Production"
         options={{
           drawerLabel: 'Production',
@@ -310,36 +317,36 @@ const DrawerNavigator = ({ onLogout }) => {
       >
         {props => <Production {...props} onLogout={onLogout} />}
       </Drawer.Screen>
-      
-      <Drawer.Screen 
-        name="Store" 
+
+      <Drawer.Screen
+        name="Store"
         component={Stores}
         options={{
           drawerLabel: 'Stores',
           title: 'Stores',
         }}
       />
-      
-      <Drawer.Screen 
-        name="Purchase" 
+
+      <Drawer.Screen
+        name="Purchase"
         component={Purchase}
         options={{
           drawerLabel: 'Purchase',
           title: 'Purchase',
         }}
       />
-      
-      <Drawer.Screen 
-        name="Quality" 
+
+      <Drawer.Screen
+        name="Quality"
         component={Quality}
         options={{
           drawerLabel: 'Quality',
           title: 'Quality',
         }}
       />
-      
-      <Drawer.Screen 
-        name="TrackSales" 
+
+      <Drawer.Screen
+        name="TrackSales"
         component={TrackOrder}
         options={{
           drawerLabel: 'Track Sales',
@@ -365,69 +372,66 @@ const LoggedInStack = ({ onLogout }) => {
         ),
       })}
     >
-      <Stack.Screen 
-        name="MainDrawer"
-        options={{ headerShown: false }}
-      >
+      <Stack.Screen name="MainDrawer" options={{ headerShown: false }}>
         {props => <DrawerNavigator {...props} onLogout={onLogout} />}
       </Stack.Screen>
-      
-      <Stack.Screen 
-        name="CreatePurchase" 
+
+      <Stack.Screen
+        name="CreatePurchase"
         component={CreatePurchase}
         options={{ title: 'Create Purchase' }}
       />
-      
-      <Stack.Screen 
-        name="PurchaseDetail" 
+
+      <Stack.Screen
+        name="PurchaseDetail"
         component={PurchaseDetail}
         options={{ title: 'Purchase Details' }}
       />
-      
-      <Stack.Screen 
-        name="RawMaterialDetail" 
+
+      <Stack.Screen
+        name="RawMaterialDetail"
         component={RawMaterialDetail}
         options={{ title: 'Raw Material Details' }}
       />
-      
-      <Stack.Screen 
-        name="AddStock" 
+
+      <Stack.Screen
+        name="AddStock"
         component={AddStock}
         options={{ title: 'Add Stock' }}
       />
-      
-      <Stack.Screen 
-        name="CreateSales" 
+
+      <Stack.Screen
+        name="CreateSales"
         component={CreateSales}
         options={{ title: 'Create Sales' }}
       />
-      
-      <Stack.Screen 
-        name="ViewSales" 
+
+      <Stack.Screen
+        name="ViewSales"
         component={ViewSales}
         options={{ title: 'View Sales' }}
       />
-      
-      <Stack.Screen 
-        name="ViewProduction" 
+
+      <Stack.Screen
+        name="ViewProduction"
         component={ViewProduction}
         options={{ title: 'View Production' }}
       />
-      
-      <Stack.Screen 
-        name="CreateQuality" 
+
+      <Stack.Screen
+        name="CreateQuality"
         component={CreateTicket}
         options={{ title: 'Create Quality Check' }}
       />
-      
-      <Stack.Screen 
-        name="CreateTicket" 
+
+      <Stack.Screen
+        name="CreateTicket"
         component={CreateTicket}
         options={{ title: 'Create Ticket' }}
       />
-      
-      <Stack.Screen 
-        name="TicketDetails" 
+
+      <Stack.Screen
+        name="TicketDetails"
         component={TicketDetails}
         options={{ title: 'Ticket Details' }}
       />

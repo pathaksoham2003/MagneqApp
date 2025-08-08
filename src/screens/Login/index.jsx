@@ -43,9 +43,9 @@ const Login = ({ navigation, onLogin }) => {
   //   }
   // }, []);
 
-  const navigateBasedOnRole = (userRole) => {
-    console.log("Navigating based on role:", userRole);
-    
+  const navigateBasedOnRole = userRole => {
+    console.log('Navigating based on role:', userRole);
+
     switch (userRole?.toUpperCase()) {
       case 'SALES':
         onLogin('CreateSales');
@@ -64,7 +64,7 @@ const Login = ({ navigation, onLogin }) => {
         break;
       default:
         // Default to Dashboard if role is not recognized
-        console.log("Unknown role, defaulting to Dashboard");
+        console.log('Unknown role, defaulting to Dashboard');
         onLogin('Dashboard');
         break;
     }
@@ -72,12 +72,12 @@ const Login = ({ navigation, onLogin }) => {
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: ({data: data}) => {
+    onSuccess: ({ data: data }) => {
       if (data?.token) {
         dispatch(loginUser(data));
-        console.log("ROLE OF THE USER", data?.route?.role);
+        console.log('ROLE OF THE USER', data?.route?.role);
         setItem('token', data.token);
-        
+
         // Navigate based on user role
         navigateBasedOnRole(data?.route?.role);
       } else {
@@ -150,11 +150,12 @@ const Login = ({ navigation, onLogin }) => {
 
           <Button
             fullWidth
-            title={mutation.isLoading ? 'Signing In...' : 'Sign In'}
             onPress={handleLogin}
             disabled={mutation.isLoading}
             style={tw`mt-5`}
-          />
+          >
+            {mutation.isLoading ? 'Signing In...' : 'Sign In'}
+          </Button>
         </View>
       </ScrollView>
     </View>
