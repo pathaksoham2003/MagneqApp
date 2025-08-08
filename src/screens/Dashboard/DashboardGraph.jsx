@@ -73,15 +73,6 @@ const DashboardGraph = () => {
     <View style={tw`mb-10`}>
       <Text style={tw`text-lg font-bold mb-1`}>Statistics</Text>
       <Text style={tw`text-gray-500 mb-3`}>Target you’ve set for each month</Text>
-
-      {/* Date Selector */}
-      <View style={tw`flex-row items-center gap-2 mb-4`}>
-        <Icon name="calendar-outline" size={18} color="#000" />
-        <Text style={tw`border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-700`}>
-          05 Feb - 06 March
-        </Text>
-      </View>
-
       {/* Tabs */}
       <View style={tw`flex-row mb-3`}>
         {chartTabs.map(tab => (
