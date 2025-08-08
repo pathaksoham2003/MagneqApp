@@ -52,7 +52,7 @@ const Quality = ({ onLogout }) => {
           <Button
             size="lg"
             startIcon={<Icon name="add-outline" size={20} color="#fff" />}
-            onClick={() => navigation.navigate('CreateTicket')}
+            onClick={() => navigation.navigate('CreateQuality')}
           >
             Create a ticket
           </Button>

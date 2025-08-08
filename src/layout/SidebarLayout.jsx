@@ -18,6 +18,7 @@ import MagneqIcon from '../assets/images/Logo_Icon.png';
 import { themeBackground, themeColorText } from '../utils/helper';
 import { useAppColorScheme } from 'twrnc';
 import useTheme from '../hooks/useTheme';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -137,108 +138,108 @@ const SidebarLayout = ({ children, title = 'Magneq', onLogout }) => {
   const menuItems = getMenuItems();
 
   return (
-    <View style={tw`flex-1 ${themeColorText}`}>
-      {/* Header */}
-      <View
-        style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}
-      >
-        <TouchableOpacity onPress={openDrawer}>
-          <Text style={tw`text-white text-3xl ${themeColorText}`}>☰</Text>
-        </TouchableOpacity>
-        <View style={tw`flex flex-row`}>
-          <Image source={MagneqIcon} />
-          <Text style={tw`text-white text-3xl ml-3 ${themeColorText}`}>
-            {title}
-          </Text>
-        </View>
-        <View style={tw`flex-row`}>
-          <TouchableOpacity onPress={openDrawer}>
-            <Text style={tw`text-white text-3xl ${themeColorText}`}>...</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleColor}>
-            <Text style={tw`text-white text-3xl ${themeColorText}`}> ...</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+    <View style={tw`flex-1 ${themeColorText}`}>{children}</View>
+    // <View style={tw`flex-1 ${themeColorText}`}>
+    //   <View
+    //     style={tw`flex-row items-center justify-between pt-10 pb-4 px-4 ${themeColorText}`}
+    //   >
+    //     <TouchableOpacity onPress={openDrawer}>
+    //       <Text style={tw`text-white text-3xl ${themeColorText}`}>☰</Text>
+    //     </TouchableOpacity>
+    //     <View style={tw`flex flex-row`}>
+    //       <Image source={MagneqIcon} />
+    //       <Text style={tw`text-white text-3xl ml-3 ${themeColorText}`}>
+    //         {title}
+    //       </Text>
+    //     </View>
+    //     <View style={tw`flex-row`}>
+    //       <TouchableOpacity onPress={openDrawer}>
+    //         <Text style={tw`text-white text-3xl ${themeColorText}`}>...</Text>
+    //       </TouchableOpacity>
+    //       <TouchableOpacity onPress={toggleColor}>
+    //         <Text style={tw`text-white text-3xl ${themeColorText}`}> ...</Text>
+    //       </TouchableOpacity>
+    //     </View>
+    //   </View>
 
-      {/* Main content */}
-      <View style={tw`flex-1`}>{children}</View>
+    //   {/* Main content */}
+    //   <View style={tw`flex-1`}>{children}</View>
 
-      {/* Backdrop */}
-      {drawerOpen && (
-        <TouchableWithoutFeedback onPress={closeDrawer}>
-          <View
-            style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`}
-          />
-        </TouchableWithoutFeedback>
-      )}
+    //   {/* Backdrop */}
+    //   {drawerOpen && (
+    //     <TouchableWithoutFeedback onPress={closeDrawer}>
+    //       <View
+    //         style={tw`absolute top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-10`}
+    //       />
+    //     </TouchableWithoutFeedback>
+    //   )}
 
-      {/* Animated Sidebar */}
-      <Animated.View
-        style={[
-          tw`absolute top-0 bottom-0 bg-white p-6`,
-          {
-            width: SCREEN_WIDTH * 0.75,
-            transform: [{ translateX: drawerAnim }],
-            elevation: 10,
-            zIndex: 30,
-          },
-        ]}
-      >
-        {/* Logo */}
-        <View style={tw`flex-row items-center mb-8`}>
-          <Image source={MagneqIcon} />
-          <Text style={tw`text-2xl font-bold ml-3`}>Magneq</Text>
-        </View>
+    //   {/* Animated Sidebar */}
+    //   <Animated.View
+    //     style={[
+    //       tw`absolute top-0 bottom-0 bg-white p-6`,
+    //       {
+    //         width: SCREEN_WIDTH * 0.75,
+    //         transform: [{ translateX: drawerAnim }],
+    //         elevation: 10,
+    //         zIndex: 30,
+    //       },
+    //     ]}
+    //   >
+    //     {/* Logo */}
+    //     <View style={tw`flex-row items-center mb-8`}>
+    //       <Image source={MagneqIcon} />
+    //       <Text style={tw`text-2xl font-bold ml-3`}>Magneq</Text>
+    //     </View>
 
-        <Text style={tw`text-gray-400 mb-3`}>MENU</Text>
+    //     <Text style={tw`text-gray-400 mb-3`}>MENU</Text>
 
-        {/* Render menuItems */}
-        {menuItems.map(item => (
-          <TouchableOpacity
-            key={item.label}
-            onPress={() => navigateTo(item.label)}
-            style={[
-              tw`flex-row items-center rounded-xl px-3 py-3 mb-2`,
-              active === item.label && tw`bg-blue-100`,
-            ]}
-          >
-            <Ionicons
-              name={item.icon}
-              size={22}
-              color={active === item.label ? '#2563EB' : '#374151'}
-              style={tw`mr-3`}
-            />
-            <Text
-              style={[
-                tw`text-lg`,
-                active === item.label
-                  ? tw`text-blue-600 font-semibold`
-                  : tw`text-gray-800`,
-              ]}
-            >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+    //     {/* Render menuItems */}
+    //     {menuItems.map(item => (
+    //       <TouchableOpacity
+    //         key={item.label}
+    //         onPress={() => navigateTo(item.label)}
+    //         style={[
+    //           tw`flex-row items-center rounded-xl px-3 py-3 mb-2`,
+    //           active === item.label && tw`bg-blue-100`,
+    //         ]}
+    //       >
+    //         <Ionicons
+    //           name={item.icon}
+    //           size={22}
+    //           color={active === item.label ? '#2563EB' : '#374151'}
+    //           style={tw`mr-3`}
+    //         />
+    //         <Text
+    //           style={[
+    //             tw`text-lg`,
+    //             active === item.label
+    //               ? tw`text-blue-600 font-semibold`
+    //               : tw`text-gray-800`,
+    //           ]}
+    //         >
+    //           {item.label}
+    //         </Text>
+    //       </TouchableOpacity>
+    //     ))}
 
-        <View style={tw`flex-1`} />
+    //     <View style={tw`flex-1`} />
 
-        {/* Logout */}
-        <TouchableOpacity
-          onPress={handleLogout}
-          style={tw`border border-gray-300 p-3 rounded-xl flex-row items-center justify-center`}
-        >
-          <Ionicons
-            name="log-out-outline"
-            size={20}
-            color="#374151"
-            style={tw`mr-2`}
-          />
-          <Text style={tw`text-lg font-medium`}>Logout</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+    //     {/* Logout */}
+    //     <TouchableOpacity
+    //       onPress={handleLogout}
+    //       style={tw`border border-gray-300 p-3 rounded-xl flex-row items-center justify-center`}
+    //     >
+    //       <Ionicons
+    //         name="log-out-outline"
+    //         size={20}
+    //         color="#374151"
+    //         style={tw`mr-2`}
+    //       />
+    //       <Text style={tw`text-lg font-medium`}>Logout</Text>
+    //     </TouchableOpacity>
+    //   </Animated.View>
+    // </View>
   );
 };
 
