@@ -71,7 +71,7 @@ const RootNavigator = () => {
             initialParams={{ isInitial: initialRoute === 'CreateSales' }}
           />
           <Stack.Screen name="ViewSales" component={ViewSales} />
-
+            
           {/* Production Screens */}
           <Stack.Screen 
             name="Production"

@@ -41,7 +41,12 @@ const CreateSales = ({ navigation }) => {
       queryClient.invalidateQueries(['sales']);
       Alert.alert('Success', 'Order submitted successfully!');
       resetForm();
-      navigation.goBack();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('Sales');
+      }
+
     },
     onError: error => {
       Alert.alert('Error', 'Failed to submit order. Please try again.');
