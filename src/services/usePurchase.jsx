@@ -7,7 +7,15 @@ const usePurchase = () => {
   const createPurchaseOrder = (data) => {
     return api.post(`${APIS.purchase_order}`, data);
   };
+  const getAllVendors = ({ page = 1, limit = 20, search = "" } = {}) => {
+    return api.get(`${APIS.purchase_order}/vendor_purchase`);
+  };
 
+  const getAllVendorPurchases = ({ id, page = 1, limit = 20 }) => {
+    return api.get(`${APIS.purchase_order}/vendor_purchase_list`, {
+      params: { id, page, limit },
+    });
+  };
   const getAllPurchaseOrders = () => {
     return api.get(`${APIS.purchase_order}`);
   };
@@ -40,7 +48,9 @@ const usePurchase = () => {
     getPurchaseOrderItems,
     addStockToPurchaseOrder,
     getPurchaseById,
-    getPendingPurchaseOrders
+    getPendingPurchaseOrders,
+    getAllVendorPurchases,
+    getAllVendors
   };
 };
 
