@@ -166,7 +166,6 @@ const CustomSidebar = ({ navigation, onLogout }) => {
       ];
     } else if (user?.route?.role === 'PURCHASE') {
       return [
-        { label: 'Stores', icon: 'storefront-outline' },
         { label: 'Store', icon: 'storefront-outline' },
         { label: 'Purchase', icon: 'document-outline' },
         { label: 'Quality', icon: 'analytics-outline' },
