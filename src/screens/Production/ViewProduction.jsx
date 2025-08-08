@@ -106,9 +106,7 @@ const ViewProduction = () => {
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
-
-        {/* Table */}
+        </View>        
         <DynamicTable header={tableHeader} tableData={tableData} />
       </ScrollView>
     </SidebarLayout>
