@@ -34,14 +34,6 @@ import TrackOrder from '../screens/TrackOrder/TrackOrder';
 import CreatePRO from '../screens/Production/CreatePRO';
 import VendorPurchases from '../screens/Purchase/VendorPurchases';
 import TrackVendors from '../screens/Purchase/TrackVendors';
-import SplashScreen from '../screens/SplashScreen';
-
-import { logoutUser, selectAuth } from '../reducer/authSlice';
-import { clearItem } from '../utils/localStorage';
-import MagneqIcon from '../assets/images/Logo_Icon.png';
-import { themeBackground, themeColorText } from '../utils/helper';
-import { useAppColorScheme } from 'twrnc';
-import useTheme from '../hooks/useTheme';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -465,9 +457,67 @@ const RootNavigator = () => {
           {props => <Login {...props} onLogin={handleLogin} />}
         </Stack.Screen>
       ) : (
-        <Stack.Screen name="App">
-          {props => <LoggedInStack {...props} onLogout={handleLogout} />}
-        </Stack.Screen>
+        <>
+          {/* Dashboard Screen */}
+          <Stack.Screen 
+            name="Dashboard" 
+            initialParams={{ isInitial: initialRoute === 'Dashboard' }}
+          >
+            {props => (
+              <Dashboard {...props} onLogout={handleLogout} />
+            )}
+          </Stack.Screen>
+
+          {/* Sales Screens */}
+          <Stack.Screen 
+            name="Sales"
+            initialParams={{ isInitial: initialRoute === 'Sales' }}
+          >
+            {props => (
+              <Sales {...props} onLogout={handleLogout} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen 
+            name="CreateSales" 
+            component={CreateSales}
+            initialParams={{ isInitial: initialRoute === 'CreateSales' }}
+          />
+          <Stack.Screen name="ViewSales" component={ViewSales} />
+
+          {/* Production Screens */}
+          <Stack.Screen 
+            name="Production"
+            initialParams={{ isInitial: initialRoute === 'Production' }}
+          >
+            {props => (
+              <Production {...props} onLogout={handleLogout} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="ViewProduction" component={ViewProduction} />
+          <Stack.Screen name="CreatePRO" component={CreatePRO} />
+          
+
+          {/* Store/Purchase Screens */}
+          <Stack.Screen 
+            name="Store" 
+            component={Stores}
+            initialParams={{ isInitial: initialRoute === 'Store' }}
+          />
+          <Stack.Screen name="Purchase" component={Purchase} />
+          <Stack.Screen name="CreatePurchase" component={CreatePurchase} />
+          <Stack.Screen name="PurchaseDetail" component={PurchaseDetail} />
+          <Stack.Screen name="RawMaterialDetail" component={RawMaterialDetail} />
+          <Stack.Screen name="AddStock" component={AddStock} />
+          <Stack.Screen name="TrackVendors" component={TrackVendors} />
+          <Stack.Screen name="VendorPurchases" component={VendorPurchases} />
+
+          {/* Quality Screens */}
+          <Stack.Screen name="Quality" component={Quality} />
+          <Stack.Screen name="CreateQuality" component={CreateQuality} />
+          <Stack.Screen name="CreateTicket" component={CreateTicket} />
+          <Stack.Screen name="TicketDetails" component={TicketDetails} />
+          <Stack.Screen name="TrackSales" component={TrackOrder} />
+        </>
       )}
     </Stack.Navigator>
   );
