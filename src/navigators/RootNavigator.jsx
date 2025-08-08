@@ -34,6 +34,7 @@ import TrackOrder from '../screens/TrackOrder/TrackOrder';
 import CreatePRO from '../screens/Production/CreatePRO';
 import VendorPurchases from '../screens/Purchase/VendorPurchases';
 import TrackVendors from '../screens/Purchase/TrackVendors';
+import SplashScreen from '../screens/SplashScreen';
 
 import { logoutUser, selectAuth } from '../reducer/authSlice';
 import { clearItem } from '../utils/localStorage';
@@ -439,8 +440,9 @@ const LoggedInStack = ({ onLogout }) => {
   );
 };
 
-// Root Navigation
+// RootNavigation.js
 const RootNavigator = () => {
+  const [isLoading, setIsLoading] = useState(true);   // For splash screen
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleLogin = () => setIsLoggedIn(true);
@@ -448,7 +450,17 @@ const RootNavigator = () => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!isLoggedIn ? (
+      {isLoading ? (
+        <Stack.Screen name="Splash">
+          {props => (
+            <SplashScreen
+              {...props}
+              setIsLoading={setIsLoading}
+              setIsLoggedIn={setIsLoggedIn}
+            />
+          )}
+        </Stack.Screen>
+      ) : !isLoggedIn ? (
         <Stack.Screen name="Login">
           {props => <Login {...props} onLogin={handleLogin} />}
         </Stack.Screen>
@@ -460,5 +472,6 @@ const RootNavigator = () => {
     </Stack.Navigator>
   );
 };
+
 
 export default RootNavigator;
