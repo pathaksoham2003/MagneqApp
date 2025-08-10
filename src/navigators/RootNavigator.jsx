@@ -270,9 +270,10 @@ const CustomSidebar = ({ navigation, onLogout }) => {
 };
 
 // Drawer Navigator with Custom Header and Sidebar
-const DrawerNavigator = ({ onLogout }) => {
+const DrawerNavigator = ({ onLogout , initialRouteName}) => {
   return (
     <Drawer.Navigator
+    initialRouteName={initialRouteName}
       screenOptions={({ navigation }) => ({
         header: ({ route, options }) => (
           <CustomHeader
@@ -308,6 +309,12 @@ const DrawerNavigator = ({ onLogout }) => {
       >
         {props => <Sales {...props} onLogout={onLogout} />}
       </Drawer.Screen>
+
+       <Stack.Screen
+        name="CreateSales"
+        component={CreateSales}
+        options={{ title: 'Create Sales' }}
+      />
 
       <Drawer.Screen
         name="Production"
@@ -359,7 +366,7 @@ const DrawerNavigator = ({ onLogout }) => {
 };
 
 // Stack for detail screens with Custom Header
-const LoggedInStack = ({ onLogout }) => {
+const LoggedInStack = ({ onLogout,initialRoute }) => {
   return (
     <Stack.Navigator
       screenOptions={({ navigation, route }) => ({
@@ -374,7 +381,7 @@ const LoggedInStack = ({ onLogout }) => {
       })}
     >
       <Stack.Screen name="MainDrawer" options={{ headerShown: false }}>
-        {props => <DrawerNavigator {...props} onLogout={onLogout} />}
+        {props => <DrawerNavigator initialRouteName={initialRoute} {...props} onLogout={onLogout} />}
       </Stack.Screen>
 
       <Stack.Screen
@@ -440,13 +447,24 @@ const LoggedInStack = ({ onLogout }) => {
   );
 };
 
-// RootNavigation.js
 const RootNavigator = () => {
-  const [isLoading, setIsLoading] = useState(true);   // For splash screen
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [initialRoute, setInitialRoute] = useState("Login");
 
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
+  // Updated handleLogin to accept the route parameter
+  const handleLogin = (route = "Dashboard") => {
+    setInitialRoute(route);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    // Reset initial route on logout
+    setInitialRoute("Dashboard");
+  };
+
+  console.log("parent", initialRoute);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -457,6 +475,8 @@ const RootNavigator = () => {
               {...props}
               setIsLoading={setIsLoading}
               setIsLoggedIn={setIsLoggedIn}
+              initialRoute={initialRoute}
+              setInitialRoute={setInitialRoute}
             />
           )}
         </Stack.Screen>
@@ -466,7 +486,13 @@ const RootNavigator = () => {
         </Stack.Screen>
       ) : (
         <Stack.Screen name="App">
-          {props => <LoggedInStack {...props} onLogout={handleLogout} />}
+          {props => (
+            <LoggedInStack
+              {...props}
+              initialRoute={initialRoute}
+              onLogout={handleLogout}
+            />
+          )}
         </Stack.Screen>
       )}
     </Stack.Navigator>

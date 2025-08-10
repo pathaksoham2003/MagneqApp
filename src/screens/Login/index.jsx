@@ -14,6 +14,7 @@ import { setItem } from '../../utils/localStorage';
 import useTheme from '../../hooks/useTheme';
 import Dropdown from '../../components/common/DropDown';
 
+// Updated Login component's navigateBasedOnRole function
 const Login = ({ navigation, onLogin }) => {
   const dispatch = useDispatch();
   const { tw } = useTheme();
@@ -23,7 +24,7 @@ const Login = ({ navigation, onLogin }) => {
   const [formData, setFormData] = useState({
     user_name: '',
     password: '',
-    role: 'STAFF', // Can be STAFF or CUSTOMER
+    role: 'STAFF',
     active: false,
   });
 
@@ -36,38 +37,35 @@ const Login = ({ navigation, onLogin }) => {
 
   const user = useSelector(selectAuth);
 
-  // useEffect(() => {
-  //   if (user?.token) {
-  //     // Navigate based on user role when already logged in
-  //     navigateBasedOnRole(user.route?.role);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (user?.token) {
+      const route = getRouteBasedOnRole(user.route?.role);
+      onLogin(route);
+    }
+  }, []);
+
+  const getRouteBasedOnRole = userRole => {
+    switch (userRole?.toUpperCase()) {
+      case 'SALES':
+        return 'CreateSales';
+      case 'CUSTOMER':
+        return 'CreateSales';
+      case 'PRODUCTION':
+        return 'Production';
+      case 'PURCHASE':
+        return 'Store';
+      case 'ADMIN':
+        return 'Dashboard';
+      default:
+        console.log('Unknown role, defaulting to Dashboard');
+        return 'Dashboard';
+    }
+  };
 
   const navigateBasedOnRole = userRole => {
     console.log('Navigating based on role:', userRole);
-
-    switch (userRole?.toUpperCase()) {
-      case 'SALES':
-        onLogin('CreateSales');
-        break;
-      case 'CUSTOMER':
-        onLogin('Sales');
-        break;
-      case 'PRODUCTION':
-        onLogin('Production');
-        break;
-      case 'PURCHASE':
-        onLogin('Store');
-        break;
-      case 'ADMIN':
-        onLogin('Dashboard');
-        break;
-      default:
-        // Default to Dashboard if role is not recognized
-        console.log('Unknown role, defaulting to Dashboard');
-        onLogin('Dashboard');
-        break;
-    }
+    const route = getRouteBasedOnRole(userRole);
+    onLogin(route);
   };
 
   const mutation = useMutation({
@@ -78,7 +76,7 @@ const Login = ({ navigation, onLogin }) => {
         console.log('ROLE OF THE USER', data?.route?.role);
         setItem('token', data.token);
 
-        // Navigate based on user role
+        // Navigate based on user role with the correct route
         navigateBasedOnRole(data?.route?.role);
       } else {
         console.error('Invalid credentials');
