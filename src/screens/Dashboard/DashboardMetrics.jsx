@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -6,16 +5,16 @@ import { useQuery } from '@tanstack/react-query';
 import useAxios from '../../hooks/useAxios';
 import { APIS } from '../../api/apiUrls';
 import useTheme from '../../hooks/useTheme';
+import useDashboard from '../../services/useDashboard';
 
 const DashboardMetrics = () => {
   const { tw } = useTheme();
-  const api = useAxios();
-
+  const { getTopHeader } = useDashboard();
   const [metrics, setMetrics] = useState([]);
 
   const { isLoading, data: headerData } = useQuery({
     queryKey: ['dashboard/top-stats'],
-    queryFn: () => api.get(`${APIS.dashboard}/top-stats`),
+    queryFn: () => getTopHeader(),
   });
 
   useEffect(() => {
@@ -27,30 +26,45 @@ const DashboardMetrics = () => {
     const formatLakh = value =>
       `₹${(parseFloat(value || 0) / 100000).toFixed(2)} L`;
 
+    // Safely parse percentage change, ignoring non-numeric values
+    const parseChange = changeStr => {
+      if (!changeStr) return 0;
+      const num = parseFloat(changeStr.replace(/[^\d.-]/g, ''));
+      return isNaN(num) ? 0 : num;
+    };
+
     const percentArrow = change =>
-      change >= 0 ? `↑ ${change.toFixed(2)}%` : `↓ ${Math.abs(change).toFixed(2)}%`;
+      change >= 0
+        ? `↑ ${change.toFixed(2)}%`
+        : `↓ ${Math.abs(change).toFixed(2)}%`;
+
+    const totalSalesChange = parseChange(headerData.total_sales_change);
+    const totalPurchasesChange = parseChange(headerData.total_purchases_change);
+    const productionOrderChange = parseChange(
+      headerData.production_order_change,
+    );
 
     setMetrics([
       {
         title: 'Total Sales',
-        value: formatCurrency(headerData.total_sales),
+        value: `₹${headerData.total_sales.split(".")[0]}`,
         icon: 'trending-up',
-        change: percentArrow(headerData.total_sales_change),
-        color: headerData.total_sales_change >= 0 ? 'text-green-500' : 'text-red-500',
+        change: percentArrow(totalSalesChange),
+        color: totalSalesChange >= 0 ? 'text-green-500' : 'text-red-500',
       },
       {
         title: 'Total Purchases',
-        value: formatLakh(headerData.total_purchases),
+        value: `₹${headerData.total_purchases.split(".")[0]}`,
         icon: 'trending-down',
-        change: percentArrow(headerData.total_purchases_change),
-        color: headerData.total_purchases_change >= 0 ? 'text-green-500' : 'text-red-500',
+        change: percentArrow(totalPurchasesChange),
+        color: totalPurchasesChange >= 0 ? 'text-green-500' : 'text-red-500',
       },
       {
         title: 'Ongoing Production',
         value: `${headerData.ongoing_production_orders ?? 0}`,
         icon: 'construct-outline',
-        change: percentArrow(headerData.production_order_change),
-        color: headerData.production_order_change >= 0 ? 'text-green-500' : 'text-red-500',
+        change: percentArrow(productionOrderChange),
+        color: productionOrderChange >= 0 ? 'text-green-500' : 'text-red-500',
       },
       {
         title: 'Current FG Inventory',

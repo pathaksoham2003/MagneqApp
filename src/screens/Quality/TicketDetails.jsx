@@ -41,14 +41,13 @@ const TicketDetails = () => {
   const queryClient = useQueryClient();
 
   const handleApprove = async () => {
-    console.lot(ticketId);
     if (!issue || issue.action_taken) return;
 
     try {
-      console.log('TIcket', ticketId);
       await approveQualityIssue(ticketId);
       queryClient.invalidateQueries(['quality-issue', ticketId]);
       queryClient.invalidateQueries(['quality-issues']);
+      navigation.goBack();
     } catch (error) {
       console.error('Failed to approve quality issue:', error);
     } finally {
@@ -60,7 +59,9 @@ const TicketDetails = () => {
 
     try {
       await deleteQualityIssue(ticketId);
-      navigation.replace('Quality');
+      queryClient.invalidateQueries(['quality-issue', ticketId]);
+      queryClient.invalidateQueries(['quality-issues']);
+      navigation.goBack();
     } catch (error) {
       console.error('Failed to delete quality issue:', error);
     } finally {

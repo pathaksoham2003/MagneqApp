@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../hooks/useTheme';
 import useQuality from '../../services/useQuality';
 import { useQuery } from '@tanstack/react-query';
+import Heading from '../../components/common/Heading';
 
 const Quality = ({ onLogout }) => {
   const { tw } = useTheme();
@@ -41,22 +42,19 @@ const Quality = ({ onLogout }) => {
       <SafeAreaView style={tw`px-4 py-2`}>
         {/* Top bar */}
         <View style={tw`flex-row justify-between items-center mb-4`}>
-          <Text style={tw`text-xl font-bold text-gray-900`}>
-            Quality Concerns
-          </Text>
-          <Icon name="search" size={22} color="#000" />
+          <Heading>Quality Concerns</Heading>
+          <View style={tw``}>
+            <Button
+              size="lg"
+              startIcon={<Icon name="add-outline" size={20} color="#fff" />}
+              onClick={() => navigation.navigate('CreateQuality')}
+            >
+              Create a ticket
+            </Button>
+          </View>
         </View>
 
         {/* Create Ticket Button */}
-        <View style={tw`mb-4`}>
-          <Button
-            size="lg"
-            startIcon={<Icon name="add-outline" size={20} color="#fff" />}
-            onClick={() => navigation.navigate('CreateQuality')}
-          >
-            Create a ticket
-          </Button>
-        </View>
 
         {/* Table */}
         <ScrollView>

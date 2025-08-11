@@ -157,7 +157,7 @@ const ViewSales = ({ navigation }) => {
     try {
       await getSaleStatus(id, { status: nextStatus });
       await queryClient.invalidateQueries(['salesOrderById', id]);
-      await queryClient.invalidateQueries(['sales']);
+      await queryClient.invalidateQueries(['sales','dashboard/top-stats']);
       Alert.alert('Success', `Status updated to ${nextStatus}`);
     } catch (error) {
       console.error(error);

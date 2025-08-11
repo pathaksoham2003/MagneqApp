@@ -101,7 +101,7 @@ const Stores = () => {
         <StoreHeader activeClass={activeClass} onClassChange={setActiveClass} />
 
         <TextInput
-          style={tw`border rounded-md p-2 ${themeText}`}
+          style={tw`border rounded-md mt-2 p-2 ${themeText}`}
           placeholder="Search raw materials..."
           value={search}
           onChangeText={setSearch}

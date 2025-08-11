@@ -13,6 +13,7 @@ import { useMutation } from '@tanstack/react-query';
 import { setItem } from '../../utils/localStorage';
 import useTheme from '../../hooks/useTheme';
 import Dropdown from '../../components/common/DropDown';
+import { getRouteBasedOnRole } from '../../utils/helper';
 
 // Updated Login component's navigateBasedOnRole function
 const Login = ({ navigation, onLogin }) => {
@@ -43,24 +44,6 @@ const Login = ({ navigation, onLogin }) => {
       onLogin(route);
     }
   }, []);
-
-  const getRouteBasedOnRole = userRole => {
-    switch (userRole?.toUpperCase()) {
-      case 'SALES':
-        return 'CreateSales';
-      case 'CUSTOMER':
-        return 'CreateSales';
-      case 'PRODUCTION':
-        return 'Production';
-      case 'PURCHASE':
-        return 'Store';
-      case 'ADMIN':
-        return 'Dashboard';
-      default:
-        console.log('Unknown role, defaulting to Dashboard');
-        return 'Dashboard';
-    }
-  };
 
   const navigateBasedOnRole = userRole => {
     console.log('Navigating based on role:', userRole);

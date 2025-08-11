@@ -19,6 +19,8 @@ const Purchase = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
 
+  const [page,setPage] = useState(0)
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['purchase'],
     queryFn: () => getAllPurchaseOrders(),
@@ -43,14 +45,9 @@ console.log(data)
       })) || [],
   };
 
-  const handleCreatePurchase = () => {
-    setShowCreateModal(false);
-    setShowSuccessModal(true);
-    setTimeout(() => {
-      setShowSuccessModal(false);
-      setShowOrderDetails(true);
-    }, 2000);
-  };
+  const handleEndReach = () => {
+    console.log("Hurray")
+  }
 
   return (
     <SidebarLayout>
@@ -62,7 +59,7 @@ console.log(data)
         <Text style={tw`text-lg font-bold mb-4`}>Purchase</Text>
 
         {/* Top Buttons */}
-        <View style={tw`gap-2 mb-3`}>
+        <View style={tw`mb-3`}>
           <Button
             fullWidth
             onPress={() => navigation.navigate("CreatePurchase")}
@@ -80,7 +77,7 @@ console.log(data)
         </View>
 
         {/* Alert */}
-        <View
+        {/* <View
           style={tw`border border-red-500 bg-red-50 px-4 py-2 rounded-md mb-4 flex-row items-center`}
         >
           <Icon
@@ -92,10 +89,10 @@ console.log(data)
           <Text style={tw`text-red-700`}>
             Items not in Stock, need to be purchased
           </Text>
-        </View>
+        </View> */}
 
         {/* Inventory Cards */}
-        <View style={tw`space-y-3 mb-6`}>
+        {/* <View style={tw`space-y-3 mb-6`}>
           {['A Class', 'B Class', 'C Class'].map((label, index) => {
             const inStock = index === 0;
             return (
@@ -122,24 +119,14 @@ console.log(data)
               </View>
             );
           })}
-        </View>
+        </View> */}
 
         {/* Table of Purchase Orders */}
         <Text style={tw`text-lg font-bold mb-2`}>Purchase Orders</Text>
-        <DynamicTable onRowClick={handleRowClick} header={purchaseData.header} tableData={purchaseData} />
+        <DynamicTable onRowClick={handleRowClick} header={purchaseData.header} tableData={purchaseData} onEndReached={handleEndReach}/>
 
-        {/* Show Purchase Order Details below table */}
         {showOrderDetails && <PurchaseOrderDetails />}
       </ScrollView>
-
-      {/* Modal for creating order */}
-      <CreatePurchase
-        visible={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSuccess={handleCreatePurchase}
-      />
-
-      {/* Success Modal */}
       <SuccessModel
         visible={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}

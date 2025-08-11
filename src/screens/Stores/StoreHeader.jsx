@@ -72,13 +72,13 @@ const StoreHeader = ({ activeClass, onClassChange }) => {
   return (
     <View style={tw`w-full`}>
       {/* Grid of Cards */}
-      <View style={tw`p-2 flex-row justify-between mt-4`}>
+      <View style={tw`p-2 flex-row justify-between`}>
         {cards.map(({ title, icon, percent, borderColor, class: cls }) => (
           <TouchableOpacity
             key={cls}
             onPress={() => onClassChange(cls)}
             style={[
-              tw`mb-4 rounded-xl ${themeColorText}`,
+              tw`rounded-xl ${themeColorText}`,
               activeClass === cls ? tw`scale-105` : tw`opacity-80`,
             ]}
           >
@@ -93,7 +93,7 @@ const StoreHeader = ({ activeClass, onClassChange }) => {
       </View>
 
       {/* Section Title */}
-      <View style={tw`flex-row items-center gap-2 mt-6`}>
+      <View style={tw`flex-row items-center gap-2 mt-4`}>
         <Text style={tw`text-2xl font-bold`}>
           {activeClass} Class Items
         </Text>

@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-
 import { useNavigation } from '@react-navigation/native';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import useProduction from '../../services/useProduction';
 import Button from '../../components/common/Button';
 import SidebarLayout from '../../layout/SidebarLayout';
@@ -11,29 +9,38 @@ import DynamicTable from '../../components/common/DynamicTable';
 import useTheme from '../../hooks/useTheme';
 
 const Production = ({ onLogout }) => {
-  const {tw} = useTheme();
+  const { tw } = useTheme();
   const header = ['Order ID', 'Date of Creation', 'Customer'];
 
-  const [page, setPage] = useState(1);
-  const { searchQuery } = useState('');
+  const searchQuery = '';
   const { getPendingProductions } = useProduction();
   const navigate = useNavigation();
-  const queryClient = useQueryClient();
 
+  // useInfiniteQuery to fetch pages of data
   const {
-    data: productionData,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: ['pendingProductions', page, searchQuery],
-    queryFn: () => getPendingProductions(page, searchQuery),
-    staleTime: 5 * 60 * 1000,
-  });
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  isLoading,
+} = useInfiniteQuery({
+  queryKey: ['pendingProductions', searchQuery],
+  queryFn: ({ pageParam = 1 }) => getPendingProductions(pageParam, searchQuery),
+  getNextPageParam: (lastPage, pages) => {
+    if (lastPage.page_no < lastPage.total_pages) {
+      return lastPage.page_no + 1;
+    }
+    return undefined;
+  },
+  staleTime: 5 * 60 * 1000,
+});
 
-  // Safely map only required columns: Order ID, Date of Creation, Customer
+
+  // Combine all pages data into a single array
+  const items = data?.pages.flatMap(page => page.item) || [];
+
   const tableData = {
-    item: (productionData?.item || []).map(row => ({
+    item: items.map(row => ({
       id: row.id,
       data: [
         row.data[0], // Order ID
@@ -43,22 +50,38 @@ const Production = ({ onLogout }) => {
     })),
   };
 
+  const handleReachEnd = () => {
+    console.log("Hurrey")
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
   return (
     <SidebarLayout onLogout={onLogout}>
       <View style={tw`px-4 pt-2`}>
-        <Text style={tw`text-lg font-bold mb-2`}>Production Table</Text>
-        <Button style={tw`mb-2`} onClick={() => navigate.navigate('CreatePRO')}>
-          Create Production
-        </Button>
+        <View style={tw`flex flex-row justify-between pb-2`}>
+          <Text style={tw`text-lg font-bold mb-2`}>Production Table</Text>
+          <Button
+            style={tw`mb-2`}
+            onClick={() => navigate.navigate('CreatePRO')}
+          >
+            Create Production
+          </Button>
+        </View>
 
-        {/* Table */}
         <DynamicTable
           header={header}
           tableData={tableData}
-          onRowClick={({item_id}) => {
+          onRowClick={({ item_id }) => {
             navigate.navigate('ViewProduction', { id: item_id });
           }}
+          onEndReached={handleReachEnd}
+          onEndReachedThreshold={0.5}
         />
+
+        {isLoading && <Text style={tw`text-center py-4`}>Loading...</Text>}
+        {isFetchingNextPage && <Text style={tw`text-center py-4`}>Loading more...</Text>}
       </View>
     </SidebarLayout>
   );

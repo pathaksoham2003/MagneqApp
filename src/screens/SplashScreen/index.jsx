@@ -5,7 +5,7 @@ import logo from '../../assets/images/black_logo.png';
 import { getItem } from '../../utils/localStorage';
 import { useSelector } from 'react-redux';
 import { selectAuth } from '../../reducer/authSlice';
-import { initailUrlMapper } from '../../utils/mapper';
+import { getRouteBasedOnRole } from '../../utils/helper';
 
 const SplashScreen = ({ setIsLoading, setIsLoggedIn, navigation , initialRoute , setInitialRoute }) => {
   const { tw } = useTheme();
@@ -37,12 +37,11 @@ const SplashScreen = ({ setIsLoading, setIsLoggedIn, navigation , initialRoute ,
         setIsLoggedIn(true);
 
         // Decide first screen from sidebar
-        let firstRoute = user?.route?.sidebar?.[0];
+        let firstRoute = user?.route?.role;
         console.log("User first route:", firstRoute);
         if (firstRoute === '') {
-          setInitialRoute(()=>'Dashboard');
         } else {
-          const capitalised = initailUrlMapper(firstRoute);
+          const capitalised = getRouteBasedOnRole(firstRoute);
           console.log("GOING TO ",capitalised)
           setInitialRoute(()=>capitalised)
         }

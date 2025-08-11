@@ -3,14 +3,13 @@ import React from 'react';
 import useTheme from '../../hooks/useTheme';
 import { themeColorText, themeText } from '../../utils/helper';
 
-const Heading = ({ children = "Heading" }) => {
+const Heading = ({ children = "Heading" , style=""}) => {
   const { tw } = useTheme();
   return (
-    <View style={tw`mb-4`}>
-      <Text style={tw`text-xl font-semibold ${themeText}`}>
+      <Text style={tw`text-2xl font-semibold ${themeText} ${style}`}>
         {children}
       </Text>
-    </View>
+    
   );
 };
 

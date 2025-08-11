@@ -359,6 +359,7 @@ const CreateTicket = () => {
         <View style={tw`px-4 py-4 bg-white border-t border-gray-200`}>
           <Button
             size="lg"
+            fullWidth
             variant="primary"
             disabled={!isFormValid() || mutation.isPending}
             onClick={handleCreate}
@@ -379,6 +380,7 @@ const CreateTicket = () => {
       {/* Success Modal */}
       <SuccessModel
         visible={showSuccess}
+        
         onClose={() => {
           setShowSuccess(false);
           navigation.navigate('TicketDetails');

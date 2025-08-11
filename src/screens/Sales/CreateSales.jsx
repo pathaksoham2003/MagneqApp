@@ -38,7 +38,7 @@ const CreateSales = ({ navigation }) => {
   const mutation = useMutation({
     mutationFn: orderPayload => createSale(orderPayload),
     onSuccess: () => {
-      queryClient.invalidateQueries(['sales']);
+      queryClient.invalidateQueries(['sales','dashboard/top-stats']);
       Alert.alert('Success', 'Order submitted successfully!');
       resetForm();
       if (navigation.canGoBack()) {

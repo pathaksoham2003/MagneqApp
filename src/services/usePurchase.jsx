@@ -16,8 +16,8 @@ const usePurchase = () => {
       params: { id, page, limit },
     });
   };
-  const getAllPurchaseOrders = () => {
-    return api.get(`${APIS.purchase_order}`);
+  const getAllPurchaseOrders = (page) => {
+    return api.get(`${APIS.purchase_order}?page_no=${page}`);
   };
 
   const updatePurchaseOrder = (id, data) => {

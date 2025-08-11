@@ -5,6 +5,7 @@ import {
   themeText,
 } from '../../utils/helper';
 import useTheme from '../../hooks/useTheme';
+
 const Button = ({
   children,
   fullWidth = false,
@@ -20,7 +21,7 @@ const Button = ({
   const { tw } = useTheme();
   const isDisabled = disabled || loading;
 
-  const baseStyle = `flex-row items-center justify-center px-2 py-1 rounded-md mt-2 mb-2`;
+  const baseStyle = `flex-row items-center justify-center px-2 py-1 rounded-md mb-1`;
   const widthStyle = fullWidth ? 'w-full' : 'self-start';
 
   const variantStyle =

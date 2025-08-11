@@ -25,10 +25,12 @@ const Sales = ({ onLogout }) => {
   });
   console.log(data);
 
+
+
   return (
     <SidebarLayout onLogout={onLogout}>
-      <View style={tw`flex flex-row justify-between mb-4`}>
-        <Heading>Track Order</Heading>
+      <View style={tw`flex p-4 flex-row justify-between`}>
+        <Heading>Sales Order</Heading>
         <Button onClick={() => navigation.navigate('CreateSales')}>
           Create Sale
         </Button>

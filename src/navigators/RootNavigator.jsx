@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+} from '@react-navigation/drawer';
 import {
   View,
   Text,
@@ -11,7 +14,6 @@ import {
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { DrawerContentScrollView } from '@react-navigation/drawer';
 
 import Login from '../screens/Login';
 import Dashboard from '../screens/Dashboard';
@@ -22,7 +24,6 @@ import CreatePurchase from '../screens/Purchase/CreatePurchase';
 import CreateSales from '../screens/Sales/CreateSales';
 import ViewProduction from '../screens/Production/ViewProduction';
 import Quality from '../screens/Quality';
-import CreateQuality from '../screens/Quality/CreateQuality';
 import ViewSales from '../screens/Sales/ViewSales';
 import Stores from '../screens/Stores';
 import CreateTicket from '../screens/Quality/CreateTicket';
@@ -42,11 +43,15 @@ import MagneqIcon from '../assets/images/Logo_Icon.png';
 import { themeBackground, themeColorText } from '../utils/helper';
 import { useAppColorScheme } from 'twrnc';
 import useTheme from '../hooks/useTheme';
+import ManageFinishedGood from '../screens/DeveloperPanel/ManageFinishedGood';
+import ManageRawMaterials from '../screens/DeveloperPanel/ManageRawMaterials';
+import ManageSuppliers from '../screens/DeveloperPanel/ManageSuppliers';
+import ManageUsers from '../screens/DeveloperPanel/ManageUsers';
+import ManageCustomers from '../screens/DeveloperPanel/ManageCustomers';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
-// Custom Header Component
 const CustomHeader = ({
   title = 'Magneq',
   navigation,
@@ -80,7 +85,6 @@ const CustomHeader = ({
       <View
         style={tw`flex-row items-center justify-between pt-2 pb-4 px-4 ${themeColorText}`}
       >
-        {/* Left Icon - Menu or Back */}
         <TouchableOpacity onPress={canGoBack ? goBack : openDrawer}>
           {canGoBack ? (
             <Ionicons name="arrow-back" size={28} color="white" />
@@ -89,7 +93,6 @@ const CustomHeader = ({
           )}
         </TouchableOpacity>
 
-        {/* Center - Logo and Title */}
         <View style={tw`flex flex-row items-center`}>
           <Image source={MagneqIcon} style={tw`w-8 h-8`} />
           <Text
@@ -99,7 +102,6 @@ const CustomHeader = ({
           </Text>
         </View>
 
-        {/* Right Icons - Menu and Theme Toggle */}
         <View style={tw`flex-row items-center`}>
           <TouchableOpacity onPress={() => {}} style={tw`mr-3`}>
             <Ionicons name="ellipsis-vertical" size={24} color="white" />
@@ -117,7 +119,7 @@ const CustomHeader = ({
   );
 };
 
-// Custom Sidebar Component
+// Custom Sidebar (unchanged)
 const CustomSidebar = ({ navigation, onLogout }) => {
   const dispatch = useDispatch();
   const { tw } = useTheme();
@@ -135,27 +137,25 @@ const CustomSidebar = ({ navigation, onLogout }) => {
     navigation.navigate(screen);
   };
 
+  // Role-based menu items generation
   const getMenuItems = () => {
     if (user?.route?.role === 'ADMIN') {
-      return user.route.sidebar.map(label => {
-        const iconsMap = {
-          dashboard: 'grid-outline',
-          sales: 'file-tray-full-outline',
-          production: 'cube-outline',
-          stores: 'storefront-outline',
-          store: 'storefront-outline',
-          purchase: 'document-outline',
-          quality: 'analytics-outline',
-        };
-
-        return {
-          label:
-            label == ''
-              ? 'Dashboard'
-              : label.charAt(0).toUpperCase() + label.slice(1),
-          icon: iconsMap[label.toLowerCase()] || 'apps-outline',
-        };
-      });
+      return [
+        { label: 'Dashboard', icon: 'grid-outline' },
+        { label: 'Sales', icon: 'file-tray-full-outline' },
+        { label: 'Production', icon: 'cube-outline' },
+        { label: 'Stores', icon: 'storefront-outline' },
+        { label: 'Purchase', icon: 'document-outline' },
+        { label: 'Quality', icon: 'analytics-outline' },
+      ];
+    } else if (user?.route?.role === 'DEVELOPER') {
+      return [
+        { label: 'ManageFinishedGood', icon: 'cube-outline' },
+        { label: 'ManageRawMaterials', icon: 'storefront-outline' },
+        { label: 'ManageVendors', icon: 'document-outline' },
+        { label: 'ManageUsers', icon: 'analytics-outline' },
+        { label: 'ManageCustomers', icon: 'grid-outline' },
+      ];
     } else if (user?.route?.role === 'CUSTOMER') {
       return [
         { label: 'Sales', icon: 'file-tray-full-outline' },
@@ -200,7 +200,6 @@ const CustomSidebar = ({ navigation, onLogout }) => {
       contentContainerStyle={tw`flex-1`}
     >
       <View style={tw`flex-1 p-6`}>
-        {/* Logo Section */}
         <View style={tw`flex-row items-center mb-8 mt-4`}>
           <Image source={MagneqIcon} style={tw`w-8 h-8`} />
           <Text style={tw`text-2xl font-bold ml-3 text-gray-800`}>Magneq</Text>
@@ -208,7 +207,6 @@ const CustomSidebar = ({ navigation, onLogout }) => {
 
         <Text style={tw`text-gray-400 mb-3 text-sm font-medium`}>MENU</Text>
 
-        {/* Menu Items */}
         <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
           {menuItems.map(item => (
             <TouchableOpacity
@@ -239,7 +237,6 @@ const CustomSidebar = ({ navigation, onLogout }) => {
           ))}
         </ScrollView>
 
-        {/* User Info */}
         {user && (
           <View style={tw`mt-4 p-3 bg-gray-50 rounded-xl`}>
             <Text style={tw`text-sm font-medium text-gray-800`}>
@@ -251,7 +248,6 @@ const CustomSidebar = ({ navigation, onLogout }) => {
           </View>
         )}
 
-        {/* Logout Button */}
         <TouchableOpacity
           onPress={handleLogout}
           style={tw`mt-4 border border-gray-300 p-3 rounded-xl flex-row items-center justify-center`}
@@ -269,104 +265,305 @@ const CustomSidebar = ({ navigation, onLogout }) => {
   );
 };
 
-// Drawer Navigator with Custom Header and Sidebar
-const DrawerNavigator = ({ onLogout , initialRouteName}) => {
-  return (
-    <Drawer.Navigator
-    initialRouteName={initialRouteName}
-      screenOptions={({ navigation }) => ({
-        header: ({ route, options }) => (
-          <CustomHeader
-            title={options.title || route.name}
-            navigation={navigation}
-            canGoBack={false}
-            onLogout={onLogout}
-          />
-        ),
-        drawerType: 'front',
-        drawerStyle: {
-          width: '75%',
-        },
-      })}
-      drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+// === Role-based Drawer Navigators ===
+
+// Admin Drawer
+const AdminDrawer = ({ onLogout, initialRouteName }) => (
+  <Drawer.Navigator
+    initialRouteName={initialRouteName || 'Dashboard'}
+    screenOptions={({ navigation }) => ({
+      header: ({ route, options }) => (
+        <CustomHeader
+          title={options.title || route.name}
+          navigation={navigation}
+          canGoBack={false}
+          onLogout={onLogout}
+        />
+      ),
+      drawerType: 'front',
+      drawerStyle: { width: '75%' },
+    })}
+    drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+  >
+    <Drawer.Screen
+      name="Dashboard"
+      options={{ drawerLabel: 'Dashboard', title: 'MAGNEQ' }}
     >
-      <Drawer.Screen
-        name="Dashboard"
-        options={{
-          drawerLabel: 'Dashboard',
-          title: 'Dashboard',
-        }}
-      >
-        {props => <Dashboard {...props} onLogout={onLogout} />}
-      </Drawer.Screen>
+      {props => <Dashboard {...props} onLogout={onLogout} />}
+    </Drawer.Screen>
 
-      <Drawer.Screen
-        name="Sales"
-        options={{
-          drawerLabel: 'Sales',
-          title: 'Sales',
-        }}
-      >
-        {props => <Sales {...props} onLogout={onLogout} />}
-      </Drawer.Screen>
+    <Drawer.Screen
+      name="Sales"
+      options={{ drawerLabel: 'Sales', title: 'MAGNEQ' }}
+    >
+      {props => <Sales {...props} onLogout={onLogout} />}
+    </Drawer.Screen>
 
-       <Stack.Screen
-        name="CreateSales"
-        component={CreateSales}
-        options={{ title: 'Create Sales' }}
-      />
+    <Drawer.Screen
+      name="Production"
+      options={{ drawerLabel: 'Production', title: 'MAGNEQ' }}
+    >
+      {props => <Production {...props} onLogout={onLogout} />}
+    </Drawer.Screen>
 
-      <Drawer.Screen
-        name="Production"
-        options={{
-          drawerLabel: 'Production',
-          title: 'Production',
-        }}
-      >
-        {props => <Production {...props} onLogout={onLogout} />}
-      </Drawer.Screen>
+    <Drawer.Screen
+      name="Stores"
+      component={Stores}
+      options={{ drawerLabel: 'Stores', title: 'MAGNEQ' }}
+    />
 
-      <Drawer.Screen
-        name="Store"
-        component={Stores}
-        options={{
-          drawerLabel: 'Stores',
-          title: 'Stores',
-        }}
-      />
+    <Drawer.Screen
+      name="Purchase"
+      component={Purchase}
+      options={{ drawerLabel: 'Purchase', title: 'MAGNEQ' }}
+    />
 
-      <Drawer.Screen
-        name="Purchase"
-        component={Purchase}
-        options={{
-          drawerLabel: 'Purchase',
-          title: 'Purchase',
-        }}
-      />
+    <Drawer.Screen
+      name="Quality"
+      component={Quality}
+      options={{ drawerLabel: 'Quality', title: 'MAGNEQ' }}
+    />
 
-      <Drawer.Screen
-        name="Quality"
-        component={Quality}
-        options={{
-          drawerLabel: 'Quality',
-          title: 'Quality',
-        }}
-      />
+    <Drawer.Screen
+      name="TrackSales"
+      component={TrackOrder}
+      options={{ drawerLabel: 'Track Sales', title: 'MAGNEQ' }}
+    />
+  </Drawer.Navigator>
+);
 
-      <Drawer.Screen
-        name="TrackSales"
-        component={TrackOrder}
-        options={{
-          drawerLabel: 'Track Sales',
-          title: 'Track Sales',
-        }}
-      />
-    </Drawer.Navigator>
-  );
-};
+// Developer Drawer
+const DeveloperDrawer = ({ onLogout, initialRouteName }) => (
+  <Drawer.Navigator
+    initialRouteName={initialRouteName || 'ManageCustomers'}
+    screenOptions={({ navigation }) => ({
+      header: ({ route, options }) => (
+        <CustomHeader
+          title={options.title || route.name}
+          navigation={navigation}
+          canGoBack={false}
+          onLogout={onLogout}
+        />
+      ),
+      drawerType: 'front',
+      drawerStyle: { width: '75%' },
+    })}
+    drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+  >
+    <Drawer.Screen
+      name="ManageFinishedGood"
+      component={ManageFinishedGood}
+      options={{ drawerLabel: 'Manage Finished Goods', title: 'MAGNEQ' }}
+    />
+    <Drawer.Screen
+      name="ManageRawMaterials"
+      component={ManageRawMaterials}
+      options={{ drawerLabel: 'Manage Raw Materials', title: 'MAGNEQ' }}
+    />
+    <Drawer.Screen
+      name="ManageVendors"
+      component={ManageSuppliers}
+      options={{ drawerLabel: 'Manage Vendors', title: 'MAGNEQ' }}
+    />
+    <Drawer.Screen
+      name="ManageUsers"
+      component={ManageUsers}
+      options={{ drawerLabel: 'Manage Users', title: 'MAGNEQ' }}
+    />
+    <Drawer.Screen
+      name="ManageCustomers"
+      component={ManageCustomers}
+      options={{ drawerLabel: 'Manage Customers', title: 'MAGNEQ' }}
+    />
+  </Drawer.Navigator>
+);
 
-// Stack for detail screens with Custom Header
-const LoggedInStack = ({ onLogout,initialRoute }) => {
+// Customer Drawer
+const CustomerDrawer = ({ onLogout, initialRouteName }) => (
+  <Drawer.Navigator
+    initialRouteName={initialRouteName || 'Sales'}
+    screenOptions={({ navigation }) => ({
+      header: ({ route, options }) => (
+        <CustomHeader
+          title={options.title || route.name}
+          navigation={navigation}
+          canGoBack={false}
+          onLogout={onLogout}
+        />
+      ),
+      drawerType: 'front',
+      drawerStyle: { width: '75%' },
+    })}
+    drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+  >
+    <Drawer.Screen
+      name="Sales"
+      options={{ drawerLabel: 'Sales', title: 'MAGNEQ' }}
+    >
+      {props => <Sales {...props} onLogout={onLogout} />}
+    </Drawer.Screen>
+
+    <Drawer.Screen
+      name="TrackSales"
+      component={TrackOrder}
+      options={{ drawerLabel: 'Track Sales', title: 'MAGNEQ' }}
+    />
+
+    <Drawer.Screen
+      name="Quality"
+      component={Quality}
+      options={{ drawerLabel: 'Quality', title: 'MAGNEQ' }}
+    />
+  </Drawer.Navigator>
+);
+
+// Sales Drawer
+const SalesDrawer = ({ onLogout, initialRouteName }) => (
+  <Drawer.Navigator
+    initialRouteName={initialRouteName || 'Sales'}
+    screenOptions={({ navigation }) => ({
+      header: ({ route, options }) => (
+        <CustomHeader
+          title={options.title || route.name}
+          navigation={navigation}
+          canGoBack={false}
+          onLogout={onLogout}
+        />
+      ),
+      drawerType: 'front',
+      drawerStyle: { width: '75%' },
+    })}
+    drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+  >
+    <Drawer.Screen
+      name="CreateSales"
+      component={CreateSales}
+      options={{ title: 'MAGNEQ' }}
+    />
+
+    <Drawer.Screen
+      name="Sales"
+      options={{ drawerLabel: 'Sales', title: 'MAGNEQ' }}
+    >
+      {props => <Sales {...props} onLogout={onLogout} />}
+    </Drawer.Screen>
+
+    <Drawer.Screen
+      name="TrackSales"
+      component={TrackOrder}
+      options={{ drawerLabel: 'Track Sales', title: 'MAGNEQ' }}
+    />
+
+    <Drawer.Screen
+      name="Quality"
+      component={Quality}
+      options={{ drawerLabel: 'Quality', title: 'MAGNEQ' }}
+    />
+  </Drawer.Navigator>
+);
+
+// Production Drawer
+const ProductionDrawer = ({ onLogout, initialRouteName }) => (
+  <Drawer.Navigator
+    initialRouteName={initialRouteName || 'Production'}
+    screenOptions={({ navigation }) => ({
+      header: ({ route, options }) => (
+        <CustomHeader
+          title={options.title || route.name}
+          navigation={navigation}
+          canGoBack={false}
+          onLogout={onLogout}
+        />
+      ),
+      drawerType: 'front',
+      drawerStyle: { width: '75%' },
+    })}
+    drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+  >
+    <Drawer.Screen
+      name="Production"
+      options={{ drawerLabel: 'Production', title: 'MAGNEQ' }}
+    >
+      {props => <Production {...props} onLogout={onLogout} />}
+    </Drawer.Screen>
+
+    <Drawer.Screen
+      name="Quality"
+      component={Quality}
+      options={{ drawerLabel: 'Quality', title: 'MAGNEQ' }}
+    />
+  </Drawer.Navigator>
+);
+
+// Purchase Drawer
+const PurchaseDrawer = ({ onLogout, initialRouteName }) => (
+  <Drawer.Navigator
+    initialRouteName={initialRouteName || 'Store'}
+    screenOptions={({ navigation }) => ({
+      header: ({ route, options }) => (
+        <CustomHeader
+          title={options.title || route.name}
+          navigation={navigation}
+          canGoBack={false}
+          onLogout={onLogout}
+        />
+      ),
+      drawerType: 'front',
+      drawerStyle: { width: '75%' },
+    })}
+    drawerContent={props => <CustomSidebar {...props} onLogout={onLogout} />}
+  >
+    <Drawer.Screen
+      name="Store"
+      component={Stores}
+      options={{ drawerLabel: 'Stores', title: 'MAGNEQ' }}
+    />
+
+    <Drawer.Screen
+      name="Purchase"
+      component={Purchase}
+      options={{ drawerLabel: 'Purchase', title: 'MAGNEQ' }}
+    />
+
+    <Drawer.Screen
+      name="Quality"
+      component={Quality}
+      options={{ drawerLabel: 'Quality', title: 'MAGNEQ' }}
+    />
+  </Drawer.Navigator>
+);
+
+// Default Drawer for fallback (if role unknown)
+const DefaultDrawer = AdminDrawer;
+
+// === LoggedInStack updated to select drawer based on role ===
+
+const LoggedInStack = ({ onLogout, initialRoute }) => {
+  const user = useSelector(selectAuth);
+  const role = user?.route?.role || '';
+
+  // Pick drawer navigator component by role
+  const getDrawerByRole = () => {
+    switch (role.toUpperCase()) {
+      case 'ADMIN':
+        return AdminDrawer;
+      case 'CUSTOMER':
+        return CustomerDrawer;
+      case 'SALES':
+        return SalesDrawer;
+      case 'PRODUCTION':
+        return ProductionDrawer;
+      case 'PURCHASE':
+        return PurchaseDrawer;
+      case 'DEVELOPER':
+        return DeveloperDrawer;
+      default:
+        return DefaultDrawer;
+    }
+  };
+
+  const DrawerComponent = getDrawerByRole();
+
   return (
     <Stack.Navigator
       screenOptions={({ navigation, route }) => ({
@@ -381,90 +578,111 @@ const LoggedInStack = ({ onLogout,initialRoute }) => {
       })}
     >
       <Stack.Screen name="MainDrawer" options={{ headerShown: false }}>
-        {props => <DrawerNavigator initialRouteName={initialRoute} {...props} onLogout={onLogout} />}
+        {props => (
+          <DrawerComponent
+            initialRouteName={initialRoute}
+            {...props}
+            onLogout={onLogout}
+          />
+        )}
       </Stack.Screen>
 
+      {/* Other detail screens that are common */}
       <Stack.Screen
         name="CreatePurchase"
         component={CreatePurchase}
-        options={{ title: 'Create Purchase' }}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="CreatePRO"
+        component={CreatePRO}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="TrackVendors"
+        component={TrackVendors}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="VendorPurchases"
+        component={VendorPurchases}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="PurchaseDetail"
         component={PurchaseDetail}
-        options={{ title: 'Purchase Details' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="RawMaterialDetail"
         component={RawMaterialDetail}
-        options={{ title: 'Raw Material Details' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="AddStock"
         component={AddStock}
-        options={{ title: 'Add Stock' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="CreateSales"
         component={CreateSales}
-        options={{ title: 'Create Sales' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="ViewSales"
         component={ViewSales}
-        options={{ title: 'View Sales' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="ViewProduction"
         component={ViewProduction}
-        options={{ title: 'View Production' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="CreateQuality"
         component={CreateTicket}
-        options={{ title: 'Create Quality Check' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="CreateTicket"
         component={CreateTicket}
-        options={{ title: 'Create Ticket' }}
+        options={{ title: 'MAGNEQ' }}
       />
 
       <Stack.Screen
         name="TicketDetails"
         component={TicketDetails}
-        options={{ title: 'Ticket Details' }}
+        options={{ title: 'MAGNEQ' }}
       />
     </Stack.Navigator>
   );
 };
 
+// RootNavigator remains mostly the same
 const RootNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [initialRoute, setInitialRoute] = useState("Login");
+  const [initialRoute, setInitialRoute] = useState('');
 
-  // Updated handleLogin to accept the route parameter
-  const handleLogin = (route = "Dashboard") => {
-    setInitialRoute(route);
+  const handleLogin = route => {
+    if (route && route.trim() !== '') {
+      setInitialRoute(route);
+    }
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    // Reset initial route on logout
-    setInitialRoute("Dashboard");
+    setInitialRoute('Dashboard');
   };
-
-  console.log("parent", initialRoute);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -484,7 +702,7 @@ const RootNavigator = () => {
         <Stack.Screen name="Login">
           {props => <Login {...props} onLogin={handleLogin} />}
         </Stack.Screen>
-      ) : (
+      ) : initialRoute ? (
         <Stack.Screen name="App">
           {props => (
             <LoggedInStack
@@ -494,10 +712,9 @@ const RootNavigator = () => {
             />
           )}
         </Stack.Screen>
-      )}
+      ) : null}
     </Stack.Navigator>
   );
 };
-
 
 export default RootNavigator;
