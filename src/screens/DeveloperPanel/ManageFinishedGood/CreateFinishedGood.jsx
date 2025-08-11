@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Button } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
+import { useToast } from "react-native-toast-notifications";
 import useFinishedGoods from '../../../services/useFinishedGoods';
 import useTheme from '../../../hooks/useTheme';
 import Input from '../../../components/common/Input';
 import Select from '../../../components/common/Select';
+import Button from '../../../components/common/Button';
 
 const CreateFinishedGood = () => {
+  const toast = useToast();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { createFinishedGood } = useFinishedGoods();
@@ -32,11 +34,11 @@ const CreateFinishedGood = () => {
     mutationFn: (data) => createFinishedGood(data),
     onSuccess: () => {
       queryClient.invalidateQueries(["finishedGoods"]);
-      toast.success("Finished good created successfully.");
+      toast.show("Finished good created successfully.");
       navigation.navigate("FinishedGoods");
     },
     onError: (err) => {
-      toast.error("Error creating finished good: " + err.message);
+      toast.show("Error creating finished good: " + err.message);
     },
   });
 
@@ -200,12 +202,12 @@ const CreateFinishedGood = () => {
         <View style={tw`flex-row justify-end gap-4 pt-6`}>
           <Button
             variant="outline" 
-            onPress={() => navigation.goBack()}
+            onClick={() => navigation.goBack()}
           >
             Cancel
           </Button>
           <Button
-            onPress={handleSubmit} 
+            onClick={handleSubmit} 
             loading={mutation.isLoading}
           >
             Submit

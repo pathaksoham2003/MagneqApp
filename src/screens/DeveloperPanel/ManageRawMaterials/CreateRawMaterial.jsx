@@ -4,11 +4,13 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import Button from '../../../components/common/Button';
 import useRawMaterials from '../../../services/useRawMaterials';
 import { useMutation } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
-import Input from '../../../components/forms/Input';
-import useTheme from '../../hooks/useTheme';
+import { useToast } from "react-native-toast-notifications";
+import useTheme from '../../../hooks/useTheme';
+import Input from '../../../components/common/Input';
+
 
 const CreateRawMaterial = () => {
+  const toast = useToast();
   const { tw } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();

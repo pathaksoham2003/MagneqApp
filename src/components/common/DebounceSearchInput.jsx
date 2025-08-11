@@ -1,7 +1,6 @@
 // DebouncedSearchInput.js
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import Input from '../../../components/forms/Input';
+import { View, Text, TouchableOpacity, FlatList,Input } from 'react-native';
 import useTheme from '../../hooks/useTheme';
 
 const DebouncedSearchInput = ({

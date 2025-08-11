@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { toast } from 'react-hot-toast';
-import Button from '../../../components/buttons/Button';
-import useManage from '../../../services/useManage';
-import Input from '../../../components/forms/Input';
+import { useToast } from "react-native-toast-notifications";
 import { useQueryClient } from '@tanstack/react-query';
-import useTheme from '../../hooks/useTheme';
+import useTheme from '../../../hooks/useTheme';
+import useManage from '../../../services/useManage';
+import Input from '../../../components/common/Input';
+import Button from '../../../components/common/Button';
 
 const CreateSupplier = () => {
+  const toast = useToast();
   const { tw } = useTheme();
   const [form, setForm] = useState({
     name: "",
@@ -40,12 +41,12 @@ const CreateSupplier = () => {
     try {
       await createUser(form);
       queryClient.invalidateQueries({ queryKey: ["SUPPLIER"] });
-      toast.success("Supplier created successfully!");
-      navigation.navigate("ManageSuppliers");
+      toast.show("Supplier created successfully!");
+      navigation.goBack();
     } catch (err) {
       const errorMessage = err.message || "Failed to create supplier";
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast.show(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -83,12 +84,12 @@ const CreateSupplier = () => {
         <View style={tw`flex-row justify-end gap-2 mt-6`}>
           <Button
             variant="outline"
-            onPress={() => navigation.goBack()}
+            onClick={() => navigation.goBack()}
           >
             Cancel
           </Button>
           <Button 
-            onPress={handleSubmit} 
+            onClick={handleSubmit} 
             loading={loading} 
             disabled={loading}
           >

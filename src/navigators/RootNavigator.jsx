@@ -48,6 +48,12 @@ import ManageRawMaterials from '../screens/DeveloperPanel/ManageRawMaterials';
 import ManageSuppliers from '../screens/DeveloperPanel/ManageSuppliers';
 import ManageUsers from '../screens/DeveloperPanel/ManageUsers';
 import ManageCustomers from '../screens/DeveloperPanel/ManageCustomers';
+import CreateFinishedGood from '../screens/DeveloperPanel/ManageFinishedGood/CreateFinishedGood';
+import CreateRawMaterial from '../screens/DeveloperPanel/ManageRawMaterials/CreateRawMaterial';
+import CreateSupplier from '../screens/DeveloperPanel/ManageSuppliers/CreateSupplier';
+import CreateUserPage from '../screens/DeveloperPanel/ManageUsers/CreateUserPage';
+import CreateCustomer from '../screens/DeveloperPanel/ManageCustomers/CreateCustomer';
+import ViewFinishedGood from '../screens/DeveloperPanel/ManageFinishedGood/ViewFinishedGood';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -236,7 +242,7 @@ const CustomSidebar = ({ navigation, onLogout }) => {
                     : tw`text-gray-800`,
                 ]}
               >
-                {item.label}
+                {item.label.replace("Manage","")}
               </Text>
             </TouchableOpacity>
           ))}
@@ -665,6 +671,36 @@ const LoggedInStack = ({ onLogout, initialRoute }) => {
       <Stack.Screen
         name="TicketDetails"
         component={TicketDetails}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="ViewFinishedGood"
+        component={ViewFinishedGood}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="CreateFinishedGood"
+        component={CreateFinishedGood}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="CreateRawMaterial"
+        component={CreateRawMaterial}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="ManageSuppliersCreate"
+        component={CreateSupplier}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="ManageUsersCreate"
+        component={CreateUserPage}
+        options={{ title: 'MAGNEQ' }}
+      />
+      <Stack.Screen
+        name="CreateCustomer"
+        component={CreateCustomer}
         options={{ title: 'MAGNEQ' }}
       />
     </Stack.Navigator>

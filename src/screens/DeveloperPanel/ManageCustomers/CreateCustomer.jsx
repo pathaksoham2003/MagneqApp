@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { View, Text, TextInput, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "../../utils/toast"; // use your RN toast utility
 import useTheme from "../../../hooks/useTheme";
 import useManage from "../../../services/useManage";
+import { useToast } from "react-native-toast-notifications";
 import Button from "../../../components/common/Button";
 
 const CreateCustomer = () => {
   const { tw } = useTheme();
+  const toast = useToast();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { createUser } = useManage();
@@ -36,7 +37,7 @@ const CreateCustomer = () => {
     if (!form.name || !form.user_name || !form.password) {
       const msg = "Name, username, and password are required";
       setError(msg);
-      toast.error(msg);
+      toast.show(msg);
       return;
     }
 
@@ -44,12 +45,12 @@ const CreateCustomer = () => {
     try {
       await createUser(form);
       queryClient.invalidateQueries({ queryKey: ["CUSTOMER"] });
-      toast.success("Customer created successfully!");
+      toast.show("Customer created successfully!");
       navigation.goBack();
     } catch (err) {
       const errorMessage = err.message || "Failed to create customer";
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast.show(errorMessage);
     } finally {
       setLoading(false);
     }

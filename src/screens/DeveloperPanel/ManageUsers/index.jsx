@@ -1,19 +1,21 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   ActivityIndicator,
   FlatList,
-} from "react-native";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigation } from "@react-navigation/native";
-import tw from "twrnc";
-import useManage from "../../../services/useManage";
-import Button from "../../../components/common/Button";
+} from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigation } from '@react-navigation/native';
+
+import useManage from '../../../services/useManage';
+import Button from '../../../components/common/Button';
+import useTheme from '../../../hooks/useTheme';
 
 const ManageUsers = () => {
-  const [search, setSearch] = useState("");
+  const { tw } = useTheme();
+  const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
   const navigation = useNavigation();
@@ -24,9 +26,9 @@ const ManageUsers = () => {
     isError,
     isLoading,
   } = useQuery({
-    queryKey: ["users", "OTHERS", currentPage, limit, search],
+    queryKey: ['users', 'OTHERS', currentPage, limit, search],
     queryFn: () =>
-      getUsersByRole({ role: "OTHERS", page: currentPage, limit, search }),
+      getUsersByRole({ role: 'OTHERS', page: currentPage, limit, search }),
     staleTime: 1000 * 60 * 5,
     keepPreviousData: true,
   });
@@ -34,10 +36,10 @@ const ManageUsers = () => {
   const transformedData = usersQuery?.item?.map((user, idx) => ({
     id: user.user_name ?? idx.toString(),
     data: [
-      user.name || "—",
-      user.user_name || "—",
-      user.role || "—",
-      user.created_at || "—",
+      user.name || '—',
+      user.user_name || '—',
+      user.role || '—',
+      user.created_at || '—',
     ],
   }));
 
@@ -57,14 +59,14 @@ const ManageUsers = () => {
         <TextInput
           placeholder="Search users by name, role or username"
           value={search}
-          onChangeText={(text) => {
+          onChangeText={text => {
             setSearch(text);
             setCurrentPage(1);
           }}
           style={tw`border border-gray-400 rounded px-3 py-2 flex-1 mr-3`}
         />
 
-        <Button onPress={() => navigation.navigate("ManageUsersCreate")}>
+        <Button onPress={() => navigation.navigate('ManageUsersCreate')}>
           Create User
         </Button>
       </View>
@@ -90,7 +92,7 @@ const ManageUsers = () => {
           {/* Table Rows */}
           <FlatList
             data={transformedData}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={item => item.id.toString()}
             renderItem={renderItem}
           />
         </>

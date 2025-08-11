@@ -24,7 +24,7 @@ export   const getRouteBasedOnRole = userRole => {
       case 'ADMIN':
         return 'Dashboard';
       case 'DEVELOPER':
-        return 'ManageCustomers';
+        return 'ManageFinishedGood';
       default:
         console.log('Unknown role, defaulting to Dashboard');
         return 'Dashboard';

@@ -1,11 +1,17 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
+import { View, Text, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { toast } from "react-hot-toast";
-import Button from "../../../components/buttons/Button";
+import { useToast } from "react-native-toast-notifications";
+import tw from "twrnc";
 import useManage from "../../../services/useManage";
-import Input from "../../../components/forms/Input";
+import Input from "../../../components/common/Input";
+import Button from "../../../components/common/Button";
 
 const CreateUserPage = () => {
+  const toast = useToast();
+  const navigation = useNavigation();
+  const { createUser } = useManage();
+
   const [form, setForm] = useState({
     name: "",
     role: "",
@@ -14,84 +20,87 @@ const CreateUserPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigation();
-  const {createUser} = useManage();
 
-  const handleChange = (e) => {
-    setForm({...form, [e.target.name]: e.target.value});
+  const handleChange = (name, value) => {
+    setForm({ ...form, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError("");
 
     if (!form.name || !form.role || !form.user_name || !form.password) {
       setError("All fields are required");
-      toast.error("All fields are required");
+      toast.show("All fields are required", { type: "danger" });
       return;
     }
 
     setLoading(true);
     try {
       await createUser(form);
-      toast.success("User created successfully!");
-      navigate("/manage_users");
+      toast.show("User created successfully!", { type: "success" });
+      navigation.navigate("ManageUsers"); // navigate to your users list screen
     } catch (err) {
       const errorMessage = err.message || "Failed to create user";
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast.show(errorMessage, { type: "danger" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Create User</h2>
-      {error && <p className="text-red-500 mb-2">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-3">
+    <ScrollView
+      contentContainerStyle={tw`p-6 bg-white dark:bg-gray-800 rounded-lg`}
+    >
+      <Text style={tw`text-xl font-semibold mb-4`}>Create User</Text>
+      {error ? <Text style={tw`text-red-500 mb-2`}>{error}</Text> : null}
+
+      <View style={tw`flex-row flex-wrap -mx-1`}>
+        <View style={tw`w-1/2 px-1`}>
           <Input
-            name="name"
             placeholder="Name"
             value={form.name}
-            onChange={handleChange}
+            onChangeText={(text) => handleChange("name", text)}
           />
+        </View>
+        <View style={tw`w-1/2 px-1`}>
           <Input
-            name="role"
             placeholder="Role"
             value={form.role}
-            onChange={handleChange}
+            onChangeText={(text) => handleChange("role", text)}
           />
+        </View>
+        <View style={tw`w-1/2 px-1`}>
           <Input
-            name="user_name"
             placeholder="Username"
             value={form.user_name}
-            onChange={handleChange}
+            onChangeText={(text) => handleChange("user_name", text)}
           />
+        </View>
+        <View style={tw`w-1/2 px-1`}>
           <Input
-            name="password"
             placeholder="Password"
-            type="password"
+            secureTextEntry
             value={form.password}
-            onChange={handleChange}
+            onChangeText={(text) => handleChange("password", text)}
           />
-        </div>
-        <div className="flex justify-end gap-2 mt-4">
-          <Button
-            size="lg"
-            type="button"
-            variant="outline"
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" loading={loading} disabled={loading}>
-            Create
-          </Button>
-        </div>
-      </form>
-    </div>
+        </View>
+      </View>
+
+      <View style={tw`flex-row justify-end mt-4`}>
+        <Button
+          size="lg"
+          variant="outline"
+          onPress={() => navigation.goBack()}
+          style={tw`mr-2`}
+        >
+          Cancel
+        </Button>
+        <Button loading={loading} disabled={loading} onPress={handleSubmit}>
+          Create
+        </Button>
+      </View>
+    </ScrollView>
   );
 };
 
