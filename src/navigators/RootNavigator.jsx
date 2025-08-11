@@ -133,9 +133,14 @@ const CustomSidebar = ({ navigation, onLogout }) => {
   };
 
   const navigateTo = screen => {
-    setActive(screen);
+  setActive(screen);
+  if (screen === 'Stores') {
+    navigation.navigate(screen, { class_type: 'A' });
+  } else {
     navigation.navigate(screen);
-  };
+  }
+};
+
 
   // Role-based menu items generation
   const getMenuItems = () => {

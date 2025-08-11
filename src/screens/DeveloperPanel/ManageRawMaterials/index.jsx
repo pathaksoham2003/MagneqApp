@@ -13,7 +13,7 @@ const ManageRawMaterials = () => {
   const { tw } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();
-  const { class_type } = route.params;
+  const { class_type } = route.params || {};
   const { getRawMaterialsByClass, getRawMaterialFilterConfig } = useRawMaterials();
   const [filters, setFilters] = useState({ search: "", type: "", name: "" });
 
