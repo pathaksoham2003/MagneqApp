@@ -52,8 +52,8 @@ const CreateRawMaterial = () => {
   const { mutate: createMutation, isLoading } = useMutation({
     mutationFn: createRawMaterial,
     onSuccess: () => {
-      toast.success("Raw Material Created!");
-      navigation.navigate("ManageRawMaterials", { class_type });
+      toast.show("Raw Material Created!");
+      navigation.goBack();
     },
     onError: (error) => {
       console.error("Error:", error);

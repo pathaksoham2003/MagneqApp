@@ -140,6 +140,7 @@ const ViewFinishedGood = () => {
         Class {classType.replace("class", "").toUpperCase()} Raw Materials
       </Text>
       {editingData[classType].map(({ raw_material, quantity }) => (
+        
         <View
           key={raw_material._id}
           style={tw`flex-row items-center border p-2 rounded mb-2`}

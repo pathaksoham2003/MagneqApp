@@ -24,7 +24,7 @@ const FilterBar = ({ modalConfig, filters, setFilters }) => {
     { label: "All Models", value: "" },
     ...modelOptions.map(m => ({ label: m, value: m }))
   ];
-
+  console.log(modelSelectOptions)
   const powerSelectOptions = [
     { label: "All Powers", value: "" },
     ...powerOptions.map(p => ({ label: p, value: p }))
@@ -54,7 +54,7 @@ const FilterBar = ({ modalConfig, filters, setFilters }) => {
               type: filters.type,
             })
           }
-          options={modelSelectOptions}
+          items={modelSelectOptions}
         />
       </View>
 
@@ -64,7 +64,7 @@ const FilterBar = ({ modalConfig, filters, setFilters }) => {
           onValueChange={(value) =>
             setFilters({ ...filters, power: value, ratio: "" })
           }
-          options={powerSelectOptions}
+          items={powerSelectOptions}
           disabled={!filters.model}
         />
       </View>
@@ -73,7 +73,7 @@ const FilterBar = ({ modalConfig, filters, setFilters }) => {
         <Select
           value={filters.ratio}
           onValueChange={(value) => setFilters({ ...filters, ratio: value })}
-          options={ratioSelectOptions}
+          items={ratioSelectOptions}
           disabled={!filters.power}
         />
       </View>
@@ -82,7 +82,7 @@ const FilterBar = ({ modalConfig, filters, setFilters }) => {
         <Select
           value={filters.type}
           onValueChange={(value) => setFilters({ ...filters, type: value })}
-          options={typeSelectOptions}
+          items={typeSelectOptions}
         />
       </View>
     </View>

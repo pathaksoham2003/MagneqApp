@@ -13,13 +13,18 @@ const ManageRawMaterials = () => {
   const { tw } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();
-  const { class_type } = route.params || {};
-  const { getRawMaterialsByClass, getRawMaterialFilterConfig } = useRawMaterials();
+
+  // Fail-safe default to "A" if null or undefined
+  const initialClassType = route.params?.class_type || "A";
+
+  const [classType, setClassType] = useState(initialClassType);
   const [filters, setFilters] = useState({ search: "", type: "", name: "" });
+
+  const { getRawMaterialsByClass, getRawMaterialFilterConfig } = useRawMaterials();
 
   useEffect(() => {
     setFilters({ search: "", type: "", name: "" });
-  }, [class_type]);
+  }, [classType]);
 
   const { data: filterConfig } = useQuery({
     queryKey: ["filter_config"],
@@ -27,21 +32,21 @@ const ManageRawMaterials = () => {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["raw_materials", class_type, filters],
+    queryKey: ["raw_materials", classType, filters],
     queryFn: () =>
-      getRawMaterialsByClass(class_type, {
+      getRawMaterialsByClass(classType, {
         search: filters.search,
         type: filters.type,
         name: filters.name,
       }),
-    enabled: ["A", "B", "C"].includes(class_type),
+    enabled: ["A", "B", "C"].includes(classType),
   });
 
   const handleAddClick = () => {
-    navigation.navigate("CreateRawMaterial", { class_type });
+    navigation.navigate("CreateRawMaterial", { class_type: classType });
   };
 
-  const config = filterConfig?.[class_type] || {};
+  const config = filterConfig?.[classType] || {};
 
   const typeOptions = [
     { label: "All Types", value: "" },
@@ -53,22 +58,36 @@ const ManageRawMaterials = () => {
     ...(config.names || []).map(name => ({ label: name, value: name }))
   ];
 
+  const classOptions = [
+    { label: "Class A", value: "A" },
+    { label: "Class B", value: "B" },
+    { label: "Class C", value: "C" }
+  ];
+
   return (
     <View style={tw`flex-1 bg-white p-4`}>
       <View style={tw`flex-row justify-between items-center mb-4`}>
         <Text style={tw`text-xl font-bold`}>
-          Manage Class {class_type} Materials
+          Manage Class {classType} Materials
         </Text>
         <Button onClick={handleAddClick}>+ Add Raw Material</Button>
       </View>
-
-      {/* Filters */}
       <View style={tw`space-y-4 mb-4`}>
-        <Input
-          placeholder="Search by name/type"
-          value={filters.search}
-          onChangeText={(value) => setFilters({ ...filters, search: value })}
-        />
+        <View style={tw`mb-4`}>
+          <Input
+            placeholder="Search by name/type"
+            value={filters.search}
+            onChangeText={(value) => setFilters({ ...filters, search: value })}
+          />
+        </View>
+
+        <View style={tw`mb-4`}>
+          <Select
+            value={classType}
+            onValueChange={(value) => setClassType(value)}
+            items={classOptions}
+          />
+        </View>
 
         <View style={tw`flex-row gap-4`}>
           {config.types && (
@@ -76,7 +95,7 @@ const ManageRawMaterials = () => {
               <Select
                 value={filters.type}
                 onValueChange={(value) => setFilters({ ...filters, type: value })}
-                options={typeOptions}
+                items={typeOptions}
               />
             </View>
           )}
@@ -86,7 +105,7 @@ const ManageRawMaterials = () => {
               <Select
                 value={filters.name}
                 onValueChange={(value) => setFilters({ ...filters, name: value })}
-                options={nameOptions}
+                items={nameOptions}
               />
             </View>
           )}

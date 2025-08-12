@@ -35,7 +35,7 @@ const CreateFinishedGood = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["finishedGoods"]);
       toast.show("Finished good created successfully.");
-      navigation.navigate("FinishedGoods");
+      navigation.goBack();
     },
     onError: (err) => {
       toast.show("Error creating finished good: " + err.message);
@@ -129,7 +129,7 @@ const CreateFinishedGood = () => {
               <Select
                 value={form.type}
                 onValueChange={(value) => handleChange('type', value)}
-                options={typeOptions}
+                items={typeOptions}
               />
             </View>
           </View>
