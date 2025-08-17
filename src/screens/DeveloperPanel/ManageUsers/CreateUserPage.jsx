@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useToast } from "react-native-toast-notifications";
+import { useQueryClient } from "@tanstack/react-query";
 import tw from "twrnc";
 import useManage from "../../../services/useManage";
 import Input from "../../../components/common/Input";
 import Button from "../../../components/common/Button";
 
-const CreateUserPage = () => {
+const CreateUserPage = ({navigation}) => {
   const toast = useToast();
-  const navigation = useNavigation();
   const { createUser } = useManage();
-
+  const queryClient = useQueryClient();
   const [form, setForm] = useState({
     name: "",
     role: "",
@@ -38,7 +38,8 @@ const CreateUserPage = () => {
     try {
       await createUser(form);
       toast.show("User created successfully!", { type: "success" });
-      navigation.navigate("ManageUsers"); // navigate to your users list screen
+     queryClient.invalidateQueries({ queryKey: ["users"] });
+      navigation.goBack(); // navigate to your users list screen
     } catch (err) {
       const errorMessage = err.message || "Failed to create user";
       setError(errorMessage);

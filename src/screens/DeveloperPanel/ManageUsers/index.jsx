@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 
 import useManage from '../../../services/useManage';
@@ -16,32 +16,45 @@ import useTheme from '../../../hooks/useTheme';
 const ManageUsers = () => {
   const { tw } = useTheme();
   const [search, setSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const limit = 10;
   const navigation = useNavigation();
   const { getUsersByRole } = useManage();
 
+  // Infinite query
   const {
-    data: usersQuery,
-    isError,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     isLoading,
-  } = useQuery({
-    queryKey: ['users', 'OTHERS', currentPage, limit, search],
-    queryFn: () =>
-      getUsersByRole({ role: 'OTHERS', page: currentPage, limit, search }),
+    isError,
+  } = useInfiniteQuery({
+    queryKey: ['users', 'OTHERS', search],
+    queryFn: ({ pageParam = 1 }) =>
+      getUsersByRole({ role: 'OTHERS', page: pageParam, limit, search }),
+    getNextPageParam: lastPage => {
+      if (lastPage.page_no < lastPage.total_pages) {
+        return lastPage.page_no + 1;
+      }
+      return undefined;
+    },
     staleTime: 1000 * 60 * 5,
     keepPreviousData: true,
   });
 
-  const transformedData = usersQuery?.item?.map((user, idx) => ({
-    id: user.user_name ?? idx.toString(),
-    data: [
-      user.name || '—',
-      user.user_name || '—',
-      user.role || '—',
-      user.created_at || '—',
-    ],
-  }));
+  // Flatten all pages
+  const allUsers =
+    data?.pages.flatMap(page =>
+      page.item.map((user, idx) => ({
+        id: user.user_name ?? idx.toString(),
+        data: [
+          user.name || '—',
+          user.user_name || '—',
+          user.role || '—',
+          user.created_at || '—',
+        ],
+      })),
+    ) || [];
 
   const renderItem = ({ item }) => (
     <View style={tw`flex-row border-b border-gray-300 py-2`}>
@@ -59,10 +72,7 @@ const ManageUsers = () => {
         <TextInput
           placeholder="Search users by name, role or username"
           value={search}
-          onChangeText={text => {
-            setSearch(text);
-            setCurrentPage(1);
-          }}
+          onChangeText={text => setSearch(text)}
           style={tw`border border-gray-400 rounded px-3 py-2 flex-1 mr-3`}
         />
 
@@ -78,22 +88,35 @@ const ManageUsers = () => {
         <Text style={tw`text-red-600 mb-3`}>Failed to load users.</Text>
       )}
 
-      {usersQuery && (
+      {data && (
         <>
           {/* Table Header */}
           <View style={tw`flex-row border-b-2 border-black py-2`}>
-            {usersQuery.header.map((head, i) => (
+            {data.pages[0].header.map((head, i) => (
               <Text key={i} style={tw`flex-1 font-bold px-2`}>
                 {head}
               </Text>
             ))}
           </View>
 
-          {/* Table Rows */}
+          {/* Table Rows with infinite scroll */}
           <FlatList
-            data={transformedData}
+            data={allUsers}
             keyExtractor={item => item.id.toString()}
             renderItem={renderItem}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }else{
+                console.log("No page left ")
+              }
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <ActivityIndicator size="small" color="#000" style={tw`mt-2`} />
+              ) : null
+            }
           />
         </>
       )}

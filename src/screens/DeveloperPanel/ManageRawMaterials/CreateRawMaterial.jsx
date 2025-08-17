@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Button from '../../../components/common/Button';
 import useRawMaterials from '../../../services/useRawMaterials';
+import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from "react-native-toast-notifications";
 import useTheme from '../../../hooks/useTheme';
@@ -15,7 +16,7 @@ const CreateRawMaterial = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { class_type } = route.params;
-
+  const queryClient = useQueryClient
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [specs, setSpecs] = useState([]);
@@ -53,6 +54,7 @@ const CreateRawMaterial = () => {
     mutationFn: createRawMaterial,
     onSuccess: () => {
       toast.show("Raw Material Created!");
+      queryClient.invalidateQueries({ queryKey: ["raw_materials"] });
       navigation.goBack();
     },
     onError: (error) => {

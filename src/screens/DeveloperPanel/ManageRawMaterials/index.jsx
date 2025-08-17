@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import Button from '../../../components/common/Button';
 import DynamicTable from '../../../components/common/DynamicTable';
 import useRawMaterials from '../../../services/useRawMaterials';
@@ -31,16 +31,50 @@ const ManageRawMaterials = () => {
     queryFn: getRawMaterialFilterConfig,
   });
 
-  const { data, isLoading } = useQuery({
+  // Infinite query implementation
+  const fetchPage = ({ pageParam = 1 }) =>
+    getRawMaterialsByClass(classType, {
+      page: pageParam,
+      limit: 10,
+      search: filters.search,
+      type: filters.type,
+      name: filters.name,
+    }).then(res => res);
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
     queryKey: ["raw_materials", classType, filters],
-    queryFn: () =>
-      getRawMaterialsByClass(classType, {
-        search: filters.search,
-        type: filters.type,
-        name: filters.name,
-      }),
+    queryFn: fetchPage,
+    getNextPageParam: (lastPage, pages) => {
+      const { page_no, total_pages } = lastPage;
+      return page_no < total_pages ? page_no + 1 : undefined;
+    },
     enabled: ["A", "B", "C"].includes(classType),
   });
+
+  // Refetch when classType or filters change
+  useEffect(() => {
+    refetch();
+  }, [classType, filters, refetch]);
+
+  // Flatten the paginated data
+  const flatData = data?.pages.flatMap(page => page.item) || [];
+  const headers = data?.pages[0]?.header || [];
+
+  const handleEndReached = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }else {
+      console.log("hello")
+    }
+  };
 
   const handleAddClick = () => {
     navigation.navigate("CreateRawMaterial", { class_type: classType });
@@ -72,6 +106,7 @@ const ManageRawMaterials = () => {
         </Text>
         <Button onClick={handleAddClick}>+ Add Raw Material</Button>
       </View>
+      
       <View style={tw`space-y-4 mb-4`}>
         <View style={tw`mb-4`}>
           <Input
@@ -113,13 +148,17 @@ const ManageRawMaterials = () => {
       </View>
 
       {isLoading ? (
-        <View style={tw`flex-1 justify-center items-center`}>
-          <Text style={tw`text-gray-500`}>Loading...</Text>
-        </View>
+        <ActivityIndicator size="large" style={tw`mt-4`} />
+      ) : isError ? (
+        <Text style={tw`text-center text-red-500 mt-4`}>
+          Error: {error.message || 'Something went wrong'}
+        </Text>
       ) : (
         <DynamicTable 
-          header={data?.header || []} 
-          tableData={data || { item: [] }} 
+          header={headers} 
+          tableData={{ item: flatData }} 
+          onEndReached={handleEndReached}
+          hasNextPage={hasNextPage}
         />
       )}
     </View>

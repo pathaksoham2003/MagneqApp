@@ -1,4 +1,4 @@
-const host = "http://10.0.2.2:5000";
+const host = "https://magneq-backend.vercel.app/";
 
 export const API_URL = `${host}/api`;
 

@@ -51,7 +51,6 @@ react {
     //
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]
-
     /* Autolinking */
     autolinkLibrariesWithApp()
 }
@@ -73,6 +72,12 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+
+project.ext.react = [
+    enableHermes: true,       // optional, if you want Hermes
+    bundleInDebug: true,      // <-- works here, not inside react { } block
+    entryFile: "index.js"     // or your entry file
+]
 
 android {
     ndkVersion rootProject.ext.ndkVersion

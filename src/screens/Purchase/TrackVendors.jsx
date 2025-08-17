@@ -22,7 +22,7 @@ const TrackVendors = () => {
     console.log(item)
     navigation.navigate('VendorPurchases', { id: item.item_id });
   };
-  console.log(data);
+  console.log("fhjf",data);
   const vendorData = {
     header: ['Vendor Name'],
     item:

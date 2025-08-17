@@ -53,8 +53,8 @@ const CreateSupplier = () => {
   };
 
   return (
-    <ScrollView style={tw`flex-1 bg-white`}>
-      <View style={tw`p-6 mx-auto bg-white rounded-lg shadow-md`}>
+    <ScrollView style={tw`p-2 flex-1 bg-white`}>
+      <View style={tw`p-6  bg-white rounded-lg shadow-md`}>
         <Text style={tw`text-xl font-semibold mb-4`}>Create Supplier</Text>
         
         {error ? (
@@ -62,7 +62,7 @@ const CreateSupplier = () => {
         ) : null}
 
         <View style={tw`space-y-4`}>
-          <View style={tw`flex-row gap-3`}>
+          <View style={tw` gap-3`}>
             <View style={tw`flex-1`}>
               <Input
                 placeholder="Name"

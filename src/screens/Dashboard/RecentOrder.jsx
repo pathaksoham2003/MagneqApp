@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import useSales from '../../services/useSales';
 import useTheme from '../../hooks/useTheme';
 import moment from 'moment';
+import { useNavigation } from '@react-navigation/native';
 
 const RecentOrder = () => {
   const { tw } = useTheme();
+  const navigation = useNavigation();
   const { getAllSales } = useSales();
 
   const { data, isLoading, isError } = useQuery({
@@ -94,7 +96,7 @@ const RecentOrder = () => {
         );
       })}
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={()=>{navigation.navigate("Sales")}}>
         <Text style={tw`text-blue-500 mt-2 text-center`}>Load More</Text>
       </TouchableOpacity>
     </View>

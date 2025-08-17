@@ -1,6 +1,6 @@
 // DebouncedSearchInput.js
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList,Input } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import useTheme from '../../hooks/useTheme';
 
 const DebouncedSearchInput = ({
@@ -73,11 +73,12 @@ const DebouncedSearchInput = ({
 
   return (
     <View style={tw`relative`}>
-      <Input
+      <TextInput
         value={value}
         onChangeText={onChangeText}
         onFocus={handleFocus}
         placeholder={placeholder}
+        style={tw`border border-gray-300 rounded-md p-2 bg-white`}
       />
       
       {showResults && (
